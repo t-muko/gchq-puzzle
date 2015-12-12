@@ -103,18 +103,23 @@ def iterate(row,blockno,gridvalues):
   # asti tai rivin loppuun miinus pituus
   # kunkin blockin liikutuksen jalkeen iteroidaan kaikki aiemmat rivit ennen kuin siirretaan taas blockia.
   # Jos blockia siirretaan, niin aiemmat rivit resetoidaan
-  if blockno == 0:
+  # Block numero on ykkosindeksoitu
+  if blockno == 1:
+    # eka blokki. Voi olla alussa.
     #print "Zeroblock"
     currminpos=0
   else:
     currminpos=gridvalues.blockrows.kerroin[row][blockno-1]+1+gridvalues.blockrows.K[row][blockno-1]
+
+  # maksimipositio:
   if blockno < len(gridvalues.blockrows.K[row])-1:
     currmaxpos=gridvalues.blockrows.kerroin[row][blockno+1]-1-gridvalues.blockrows.K[row][blockno]
   else:
+    # Viimeinen blokki
     currmaxpos=sarakkeita-gridvalues.blockrows.K[row][blockno]
 
-  print 'row %s block %s min %s, max %s' % (row,blockno,currminpos,currmaxpos)
-  print gridvalues.blockrows.K[row]
+  print 'row %s block %s current min %s, max %s' % (row,blockno,currminpos,currmaxpos)
+  #print gridvalues.blockrows.K[row]
 
 
   for resetrow in range(row):
@@ -135,7 +140,7 @@ def iterate(row,blockno,gridvalues):
         #print gridvalues.blockrows.kerroin
       iterate(row-1,len(gridvalues.blockrows.K[row-1])-1,gridvalues)
 
-  if blockno > 0:
+  if blockno > 1:
     iterate(row,blockno-1,gridvalues)
 
 

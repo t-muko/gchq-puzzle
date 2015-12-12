@@ -117,8 +117,8 @@ class Grid:
         return
 
   def updateRow(self,row):
-    print "Updating row %s, value %s" % (row,self.blockrows.rowvalues()[row])
-    print self.blockrows.kerroin[row]
+    #print "Updating row %s, value %s" % (row,self.blockrows.rowvalues()[row])
+    #print self.blockrows.kerroin[row]
     self.decToRow(self.blockrows.rowvalues()[row],row)
 
   def printgrid(self):
