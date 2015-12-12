@@ -66,17 +66,26 @@ class Positio:
   def minpositio(self,row,palikkano):
     minpos=0
     #print "minimipositio riville %s, palikalle %s" % (row,palikkano)
+    # Palikoiden yhteispituus edelliseen palikkaan saakka plus palikoiden maara ennen palikkaa
+    # Palikkanumerot ykkosindeksoituja. Nollapalikka on nolla
     for i in range(1,palikkano):
       minpos=minpos+self.K[row][i]
     minpos=minpos+palikkano-1
     return minpos
 
   def maxpositio(self,row,palikkano):
-    maxpos=0
-    for i in range(palikkano,len(self.K)-1):
-      maxpos=maxpos+self.K[rivi][i]
-    maxpos=maxpos+len(self.K[rivi])-i-1
+    # Maksimipalikkapositio on rivin pituus miinus palikoiden yhteismitta mukaanlukien palikka itse
+    #plus palikoiden maara miinus yksi
+    maxpos=self.rowlenght+1
+    for i in range(palikkano,len(self.K[row]+1)):
+      maxpos=maxpos-self.K[row][i]
+    maxpos=maxpos-(len(self.K[row])-i)-1
     return maxpos
+
+  def resetRowToMin(self,row):
+    for palikka in range(1,(len(self.K[row]))):
+      self.kerroin[row][palikka]=self.minpositio(row,palikka)
+
 
   def rowvalues(self):
     values=[]
@@ -99,7 +108,8 @@ class Grid:
       self.decToRow(row,rowidx)
 
   def decToRow(self,n,rowno,colno=0):
-    #print "converting row %s, %s:%s bit %s" % (n,rowno,colno,str(n%2))
+    #print "converting row %s, value %s, col %s bit %s" % (rowno,n,colno,str(n%2))
+
     if n==0: return ''
     else:
         self.grid[rowno,colno]=n%2
@@ -108,6 +118,7 @@ class Grid:
 
   def updateRow(self,row):
     print "Updating row %s, value %s" % (row,self.blockrows.rowvalues()[row])
+    print self.blockrows.kerroin[row]
     self.decToRow(self.blockrows.rowvalues()[row],row)
 
   def printgrid(self):
@@ -124,7 +135,7 @@ class Grid:
         regstring=regstring+('1{%s}' % str(blocklen))
         if idx<n-1:
           regstring=regstring+('0+')
-    print testcolumn
-    print regstring
-    print re.match(regstring,testcolumn)
+#    print testcolumn
+#    print regstring
+    return bool(re.match(regstring,testcolumn))
 

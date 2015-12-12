@@ -66,7 +66,7 @@ T=[[0,7,2,1,1,7],
    [0,7,1,3,2,1,1]]
 
 
-
+itercount=0
 riveja=len(K)
 sarakkeita=len(T)
 
@@ -84,15 +84,27 @@ blockrows=kuokka.Positio(K,sarakkeita)
 gridvalues=kuokka.Grid(blockrows,T)
 gridvalues.printgrid()
 
-#for test in range(sarakkeita):
-#  gridvalues.testColumn(test)
 
+def testAll(gridvalues,sarakkeita=26):
+  overallResult=True
+  global itercount
+  itercount=itercount+1
+  for test in range(sarakkeita):
+    overallResult=gridvalues.testColumn(test)
+    if overallResult==False:
+      #print "Test fail at col %s" % test
+      break
+  if overallResult==True:
+    print "Yeee!"
+    gridvalues.printgrid()
 
 def iterate(row,blockno,gridvalues):
   # Kukin blokki voi liikkua edellisen blockin perasta seuraavaan blockin alkuun miinus pituus miinus yksi
   # asti tai rivin loppuun miinus pituus
+  # kunkin blockin liikutuksen jalkeen iteroidaan kaikki aiemmat rivit ennen kuin siirretaan taas blockia.
+  # Jos blockia siirretaan, niin aiemmat rivit resetoidaan
   if blockno == 0:
-    print "Zeroblock"
+    #print "Zeroblock"
     currminpos=0
   else:
     currminpos=gridvalues.blockrows.kerroin[row][blockno-1]+1+gridvalues.blockrows.K[row][blockno-1]
@@ -101,14 +113,32 @@ def iterate(row,blockno,gridvalues):
   else:
     currmaxpos=sarakkeita-gridvalues.blockrows.K[row][blockno]
 
-  print 'min %s, max %s' % (currminpos,currmaxpos)
+  print 'row %s block %s min %s, max %s' % (row,blockno,currminpos,currmaxpos)
+  print gridvalues.blockrows.K[row]
+
+
+  for resetrow in range(row):
+    #print "reset row %s" % row
+    gridvalues.blockrows.resetRowToMin(row)
+
 
   #range is upper limit exclusive
   for currpos in range(currminpos,currmaxpos+1):
     gridvalues.blockrows.kerroin[row][blockno]=currpos
     gridvalues.updateRow(row)
-    gridvalues.printgrid()
+    #gridvalues.printgrid()
+    testAll(gridvalues)
+    if row > 0:
+      if row >1:
+        print "row %s, itercount %s" % (row,itercount)
+        gridvalues.printgrid()
+        #print gridvalues.blockrows.kerroin
+      iterate(row-1,len(gridvalues.blockrows.K[row-1])-1,gridvalues)
+
   if blockno > 0:
     iterate(row,blockno-1,gridvalues)
 
-iterate(24,5,gridvalues)
+
+
+iterate(24,len(gridvalues.blockrows.K[24])-1,gridvalues)
+gridvalues.printgrid()
