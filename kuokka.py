@@ -89,12 +89,13 @@ class Positio:
     return values
 
 class Grid:
-  def __init__(self,rowvalues,T):
+  def __init__(self,blockrows,T):
     #print rowvalues
     #rowlength=len(T)
     self.T=T
-    self.grid=np.zeros((len(rowvalues),len(T)),dtype="bool_")
-    for rowidx,row in enumerate(rowvalues):
+    self.blockrows=blockrows
+    self.grid=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
+    for rowidx,row in enumerate(blockrows.rowvalues()):
       self.decToRow(row,rowidx)
 
   def decToRow(self,n,rowno,colno=0):
@@ -104,6 +105,10 @@ class Grid:
         self.grid[rowno,colno]=n%2
         self.decToRow(n/2,rowno,colno+1)
         return
+
+  def updateRow(self,row):
+    print "Updating row %s, value %s" % (row,self.blockrows.rowvalues()[row])
+    self.decToRow(self.blockrows.rowvalues()[row],row)
 
   def printgrid(self):
     print self.grid.astype(int)
@@ -115,9 +120,10 @@ class Grid:
     regstring="0*"
     n=len(self.T[col])
     for idx,blocklen in enumerate(self.T[col]):
-      regstring=regstring+('1{%s}' % str(blocklen))
-      if idx<n-1:
-        regstring=regstring+('0+')
+      if idx>0:
+        regstring=regstring+('1{%s}' % str(blocklen))
+        if idx<n-1:
+          regstring=regstring+('0+')
     print testcolumn
     print regstring
     print re.match(regstring,testcolumn)

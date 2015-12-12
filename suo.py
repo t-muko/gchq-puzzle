@@ -74,15 +74,41 @@ print "riveja %s, sarakkeita %s" % (riveja,sarakkeita)
 print "K"
 print K
 
-grid=kuokka.Positio(K,sarakkeita)
+blockrows=kuokka.Positio(K,sarakkeita)
 #print 'alustetut minimikertoimet'
 #print grid.kerroin
 #print grid.rowvalues()
 #for value in grid.rowvalues():
 #  print kuokka.decToBin(value)
 
-gridvalues=kuokka.Grid(grid.rowvalues(),T)
+gridvalues=kuokka.Grid(blockrows,T)
 gridvalues.printgrid()
 
-gridvalues.testColumn(1)
-gridvalues.testColumn(24)
+#for test in range(sarakkeita):
+#  gridvalues.testColumn(test)
+
+
+def iterate(row,blockno,gridvalues):
+  # Kukin blokki voi liikkua edellisen blockin perasta seuraavaan blockin alkuun miinus pituus miinus yksi
+  # asti tai rivin loppuun miinus pituus
+  if blockno == 0:
+    print "Zeroblock"
+    currminpos=0
+  else:
+    currminpos=gridvalues.blockrows.kerroin[row][blockno-1]+1+gridvalues.blockrows.K[row][blockno-1]
+  if blockno < len(gridvalues.blockrows.K[row])-1:
+    currmaxpos=gridvalues.blockrows.kerroin[row][blockno+1]-1-gridvalues.blockrows.K[row][blockno]
+  else:
+    currmaxpos=sarakkeita-gridvalues.blockrows.K[row][blockno]
+
+  print 'min %s, max %s' % (currminpos,currmaxpos)
+
+  #range is upper limit exclusive
+  for currpos in range(currminpos,currmaxpos+1):
+    gridvalues.blockrows.kerroin[row][blockno]=currpos
+    gridvalues.updateRow(row)
+    gridvalues.printgrid()
+  if blockno > 0:
+    iterate(row,blockno-1,gridvalues)
+
+iterate(24,5,gridvalues)
