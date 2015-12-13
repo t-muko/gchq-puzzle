@@ -106,15 +106,19 @@ class Grid:
     self.grid=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
     for rowidx,row in enumerate(blockrows.rowvalues()):
       self.decToRow(row,rowidx)
+    self.binWghArray=np.zeros(len(T))
+    self.binWghArray=pow(2,np.arange(1,len(T),1))
 
   def decToRow(self,n,rowno,colno=0):
     #print "converting row %s, value %s, col %s bit %s" % (rowno,n,colno,str(n%2))
+    binWghArray=pow(2,np.arange(1,26,1))
 
-    if n==0: return ''
-    else:
-        self.grid[rowno,colno]=n%2
-        self.decToRow(n/2,rowno,colno+1)
-        return
+#    if n==0: return ''
+#    else:
+#        self.grid[rowno,colno]=n%2
+#        self.decToRow(n/2,rowno,colno+1)
+    self.grid[rowno]=(n/binWghArray)%2
+    return
 
   def updateRow(self,row):
     #print "Updating row %s, value %s" % (row,self.blockrows.rowvalues()[row])

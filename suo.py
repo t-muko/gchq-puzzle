@@ -138,7 +138,7 @@ def iterate(row,blockno,gridvalues):
     #gridvalues.printgrid()
     testAll(gridvalues)
     if row > 0:
-      if row >1:
+      if row >0:
         print "row %s, itercount %s" % (row,itercount)
         print "%s iterations per second" % (itercount/(timer()-starttime))
         gridvalues.printgrid()
@@ -148,8 +148,8 @@ def iterate(row,blockno,gridvalues):
       iterate(row-1,len(gridvalues.blockrows.K[row-1])-1,gridvalues)
 
   # Jos edella on viela blokkeja, iteroidaan nekin
-  if blockno > 1:
-    iterate(row,blockno-1,gridvalues)
+    if blockno > 1:
+      iterate(row,blockno-1,gridvalues)
 
 
 
