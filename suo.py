@@ -1,4 +1,6 @@
 import kuokka
+from timeit import default_timer as timer
+
 #from kuokka import positio
 #import numpy as np
 #rivit = np.array([
@@ -65,7 +67,7 @@ T=[[0,7,2,1,1,7],
 #   [0,1,1]]
    [0,7,1,3,2,1,1]]
 
-
+starttime=timer()
 itercount=0
 riveja=len(K)
 sarakkeita=len(T)
@@ -138,6 +140,7 @@ def iterate(row,blockno,gridvalues):
     if row > 0:
       if row >1:
         print "row %s, itercount %s" % (row,itercount)
+        print "%s iterations per second" % (itercount/(timer()-starttime))
         gridvalues.printgrid()
         #print gridvalues.blockrows.kerroin
       # Kunkin siirron jalkeen resetoidaan edellinen rivi ja iteroidaan myos se
