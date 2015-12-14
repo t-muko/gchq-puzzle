@@ -1,33 +1,12 @@
 import numpy as np
 import re
 
-#from pythonds.basic.stack import Stack
-
-#def divideBy2(decNumber):
-#  remstack = Stack()
-
-#  while decNumber > 0:
-#    rem = decNumber % 2
-#    remstack.push(rem)
-#    decNumber = decNumber // 2
-#  binString = ""
-#  while not remstack.isEmpty():
-#    binString = binString + str(remstack.pop())
-
-#  return binString
-
-#print(divideBy2(42))
-
-#def pystybinToDec(grid,position):
-#print (2%2)
-
 def decToBin(n):
     if n==0: return ''
     else:
 #        return decToBin(n/2) + str(n%2)
         return str(n%2) + decToBin(n/2)
 # Big endian, please
-#print decToBin(24)
 
 def binToDec(binarray):
   decimal = 0
@@ -35,20 +14,13 @@ def binToDec(binarray):
     decimal = decimal*2 + int(digit)
   return decimal
 
-#print binToDec([1,1,1,1])
-
-#def palikkaLoop(grid,rivi,K,palikkano,positio):
-#  for testpositio in range(positio.minmax(rivi,palikkano))
-#    positio[rivi,palikkano]=testpositio
-
-
 
 class Positio:
   # A class to store start positions for each block in the grid shade puzzle.
   # Start position has to be larger than the lenght of previous blocks and spaces
   # When creating an object, the positions are initialised to their minimum values
   # Inputs, Block lenght definition array K, lenght of the row rowlenght
-#    for row in range(1,(len(self.K)+1)):
+  #    for row in range(1,(len(self.K)+1)):
   # K array ja positioarray ovat ykkosindeksoituja
   # Rivit nollaindeksoituja
   # Positiot nollaindeksoituja
@@ -58,19 +30,24 @@ class Positio:
     self.kerroin=[]
     # Alustetaan palikkakertoimet K:n mukaan
     for row in range(0,(len(self.K))):
-      kerroinrivi=[0]
-      for palikka in range(1,(len(self.K[row]))):
+      kerroinrivi=[]
+      for palikka in range(0,(len(self.K[row]))):
         kerroinrivi.append(self.minpositio(row,palikka))
       self.kerroin.append(kerroinrivi)
+    print "kertoimet"
+    print self.kerroin
 
   def minpositio(self,row,palikkano):
-    minpos=0
-    #print "minimipositio riville %s, palikalle %s" % (row,palikkano)
-    # Palikoiden yhteispituus edelliseen palikkaan saakka plus palikoiden maara ennen palikkaa
-    # Palikkanumerot ykkosindeksoituja. Nollapalikka on nolla
-    for i in range(1,palikkano):
-      minpos=minpos+self.K[row][i]
-    minpos=minpos+palikkano-1
+    if palikkano:
+      minpos=0
+      #print "minimipositio riville %s, palikalle %s" % (row,palikkano)
+      # Palikoiden yhteispituus plus yksi
+      # Nollapalikan minimi on aina nolla
+      for i in range(0,palikkano):
+        minpos=minpos+self.K[row][i]+1
+    else:
+      # first block. Always zero
+      return 0
     return minpos
 
   def maxpositio(self,row,palikkano):
@@ -85,7 +62,7 @@ class Positio:
     return maxpos
 
   def resetRowToMin(self,row):
-    for palikka in range(1,(len(self.K[row]))):
+    for palikka in range(0,(len(self.K[row]))):
       self.kerroin[row][palikka]=self.minpositio(row,palikka)
 
 
@@ -95,7 +72,7 @@ class Positio:
     for rowidx,row in enumerate(self.kerroin):
       rowsum=0
       for idx,kerroin in enumerate(row):
-        rowsum=rowsum+(pow(2,self.K[rowidx][idx])-1)*pow(2,self.kerroin[rowidx][idx])
+        rowsum=rowsum+(pow(2,self.K[rowidx][idx-1])-1)*pow(2,self.kerroin[rowidx][idx-1])
       values.append(rowsum)
     return values
 

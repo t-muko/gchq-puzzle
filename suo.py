@@ -15,58 +15,58 @@ import numpy as np
 #np.packbits(rivit, axis=1)
 #K=[[0,1,3,2,4],[0,1,1],[0,1,1,1,3,2]]
 
-K=[[0,7,3,1,1,7],
-   [0,1,1,2,2,1,1],
-   [0,1,3,1,3,1,1,3,1],
-   [0,1,3,1,1,6,1,3,1],
-   [0,1,3,1,5,2,1,3,1],
-   [0,1,1,2,1,1],
-   [0,7,1,1,1,1,1,7],
-   [0,3,3],
-   [0,1,2,3,1,1,3,1,1,2],
-   [0,1,1,3,2,1,1],
-   [0,4,1,4,2,1,2],
-   [0,1,1,1,1,1,4,1,3],
-   [0,2,1,1,1,2,5],
-   [0,3,2,2,6,3,1],
-   [0,1,9,1,1,2,1],
-   [0,2,1,2,2,3,1],
-   [0,3,1,1,1,1,5,1],
-   [0,1,2,2,5],
-   [0,7,1,2,1,1,1,3],
-   [0,1,1,2,1,2,2,1],
-   [0,1,3,1,4,5,1],
-   [0,1,3,1,3,10,2],
-   [0,1,3,1,1,6,6],
-   [0,1,1,2,1,1,2],
-   [0,7,2,1,2,5]]
+K=[[7,3,1,1,7],
+   [1,1,2,2,1,1],
+   [1,3,1,3,1,1,3,1],
+   [1,3,1,1,6,1,3,1],
+   [1,3,1,5,2,1,3,1],
+   [1,1,2,1,1],
+   [7,1,1,1,1,1,7],
+   [3,3],
+   [1,2,3,1,1,3,1,1,2],
+   [1,1,3,2,1,1],
+   [4,1,4,2,1,2],
+   [1,1,1,1,1,4,1,3],
+   [2,1,1,1,2,5],
+   [3,2,2,6,3,1],
+   [1,9,1,1,2,1],
+   [2,1,2,2,3,1],
+   [3,1,1,1,1,5,1],
+   [1,2,2,5],
+   [7,1,2,1,1,1,3],
+   [1,1,2,1,2,2,1],
+   [1,3,1,4,5,1],
+   [1,3,1,3,10,2],
+   [1,3,1,1,6,6],
+   [1,1,2,1,1,2],
+   [7,2,1,2,5]]
 
-T=[[0,7,2,1,1,7],
-   [0,1,1,2,2,1,1],
-   [0,1,3,1,3,1,3,1,3,1],
-   [0,1,3,1,1,5,1,3,1],
-   [0,1,3,1,1,4,1,3,1],
-   [0,1,1,1,3,1,1],
-   [0,7,1,1,1,1,1,7],
-   [0,1,1,3],
-   [0,2,1,2,1,8,2,1],
-   [0,2,2,1,2,1,1,1,2],
-   [0,1,7,3,2,1],
-   [0,1,2,3,1,1,1,1,1],
-   [0,4,1,1,2,6],
-   [0,3,3,1,1,1,3,1],
-   [0,1,2,5,2,2],
-   [0,2,2,1,1,1,1,1,2,1],
-   [0,1,3,3,2,1,8,1],
-   [0,6,2,1],
-   [0,7,1,4,1,1,3],
-   [0,1,1,1,1,4],
-   [0,1,3,1,3,7,1],
-   [0,1,3,1,1,1,2,1,1,4],
-   [0,1,3,1,4,3,3],
-   [0,1,1,2,2,2,6,1],
+T=[[7,2,1,1,7],
+   [1,1,2,2,1,1],
+   [1,3,1,3,1,3,1,3,1],
+   [1,3,1,1,5,1,3,1],
+   [1,3,1,1,4,1,3,1],
+   [1,1,1,3,1,1],
+   [7,1,1,1,1,1,7],
+   [1,1,3],
+   [2,1,2,1,8,2,1],
+   [2,2,1,2,1,1,1,2],
+   [1,7,3,2,1],
+   [1,2,3,1,1,1,1,1],
+   [4,1,1,2,6],
+   [3,3,1,1,1,3,1],
+   [1,2,5,2,2],
+   [2,2,1,1,1,1,1,2,1],
+   [1,3,3,2,1,8,1],
+   [6,2,1],
+   [7,1,4,1,1,3],
+   [1,1,1,1,4],
+   [1,3,1,3,7,1],
+   [1,3,1,1,1,2,1,1,4],
+   [1,3,1,4,3,3],
+   [1,1,2,2,2,6,1],
 #   [0,1,1]]
-   [0,7,1,3,2,1,1]]
+   [7,1,3,2,1,1]]
 
 starttime=timer()
 itercount=0
@@ -116,18 +116,20 @@ def iterate(row,blockno,gridvalues):
 
   # etsitaan palikan liikkumavara
 
-  if blockno == 1:
+  if blockno == 0:
     # eka blokki. Voi olla alussa.
     #print "Zeroblock"
     currminpos=0
   else:
-    currminpos=gridvalues.blockrows.kerroin[row][blockno-1]+1+gridvalues.blockrows.K[row][blockno-1]
+    currminpos=gridvalues.blockrows.kerroin[row][blockno-1]+1
 
   # maksimipositio:
   if blockno < len(gridvalues.blockrows.K[row])-1:
+    #print row,blockno
     currmaxpos=gridvalues.blockrows.kerroin[row][blockno+1]-1-gridvalues.blockrows.K[row][blockno]
   else:
     # Viimeinen blokki
+    #print row,blockno
     currmaxpos=sarakkeita-gridvalues.blockrows.K[row][blockno]+1
 
   #print 'row %s block %s current min %s, max %s' % (row,blockno,currminpos,currmaxpos)
@@ -142,26 +144,31 @@ def iterate(row,blockno,gridvalues):
     #print "%s iterations per second" % (itercount/(timer()-starttime))
     #gridvalues.printgrid()
     # Limit printing
-    if row >-1:
+    if row >90:
       print "row %s, itercount %s" % (row,itercount)
-      print "%s iterations per second" % (itercount/(timer()-starttime))
-      gridvalues.printgrid()
+      #print "%s iterations per second" % (itercount/(timer()-starttime))
+      #gridvalues.printgrid()
 
       #print gridvalues.blockrows.kerroin
 
     testAll(gridvalues)
 
     # If not the first row, iterate previous row after every move
-    if row > 0:
+    if row > 90:
       # Kunkin siirron jalkeen resetoidaan edellinen rivi ja iteroidaan myos se
       gridvalues.blockrows.resetRowToMin(row-1)
       iterate(row-1,len(gridvalues.blockrows.K[row-1])-1,gridvalues)
 
   # Jos edella on viela blokkeja, iteroidaan nekin
-    if blockno > 1:
+    if blockno > 0:
       iterate(row,blockno-1,gridvalues)
 
 
+for row in range(0,25):
+  itercount=0
+  starttime=timer()
+  iterate(row,len(gridvalues.blockrows.K[row])-1,gridvalues)
+  print "row %s, itercount %s, " % (row,itercount),
+  print "%s iterations per second" % (itercount/(timer()-starttime))
 
-iterate(2,len(gridvalues.blockrows.K[1])-1,gridvalues)
 #gridvalues.printgrid()
