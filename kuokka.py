@@ -75,11 +75,13 @@ class Positio:
 
   def maxpositio(self,row,palikkano):
     # Maksimipalikkapositio on rivin pituus miinus palikoiden yhteismitta mukaanlukien palikka itse
-    #plus palikoiden maara miinus yksi
+    # plus palikoiden maara miinus yksi, paitsi jos on viimeinen palikka, niin silloin voi menna loppuun asti
+    # Lasketaan siis kaikkien muiden paitsi viimeisen palikan mitat plus yksi yhteen ja sitten viela viimeinen
+    # palikka. Ja positio on taasen ykkosindeksoitu?
     maxpos=self.rowlenght+1
-    for i in range(palikkano,len(self.K[row]+1)):
-      maxpos=maxpos-self.K[row][i]
-    maxpos=maxpos-(len(self.K[row])-i)-1
+    for i in range(palikkano,len(self.K[row])):
+      maxpos=maxpos-self.K[row][i]-1
+    maxpos=maxpos-self.K[row][len(self.K[row])]
     return maxpos
 
   def resetRowToMin(self,row):

@@ -1,5 +1,6 @@
 import kuokka
 from timeit import default_timer as timer
+import numpy as np
 
 #from kuokka import positio
 #import numpy as np
@@ -73,8 +74,8 @@ riveja=len(K)
 sarakkeita=len(T)
 
 print "riveja %s, sarakkeita %s" % (riveja,sarakkeita)
-print "K"
-print K
+#print "K"
+#print K
 
 blockrows=kuokka.Positio(K,sarakkeita)
 #print 'alustetut minimikertoimet'
@@ -84,21 +85,23 @@ blockrows=kuokka.Positio(K,sarakkeita)
 #  print kuokka.decToBin(value)
 
 gridvalues=kuokka.Grid(blockrows,T)
-gridvalues.printgrid()
+#gridvalues.printgrid()
 
 
 def testAll(gridvalues,sarakkeita=26):
   overallResult=True
   global itercount
   itercount=itercount+1
-  for test in range(sarakkeita):
-    overallResult=gridvalues.testColumn(test)
-    if overallResult==False:
-      #print "Test fail at col %s" % test
-      break
-  if overallResult==True:
-    print "Yeee!"
-    gridvalues.printgrid()
+
+  if (np.array_equal(np.dot(gridvalues.grid,np.ones(sarakkeita-1)),K)):
+    for test in range(sarakkeita):
+      overallResult=gridvalues.testColumn(test)
+      if overallResult==False:
+        #print "Test fail at col %s" % test
+        break
+    if overallResult==True:
+      print "Yeee!"
+      gridvalues.printgrid()
 
 def iterate(row,blockno,gridvalues):
   # Kukin blokki voi liikkua edellisen blockin perasta seuraavaan blockin alkuun miinus pituus miinus yksi
@@ -125,7 +128,7 @@ def iterate(row,blockno,gridvalues):
     currmaxpos=gridvalues.blockrows.kerroin[row][blockno+1]-1-gridvalues.blockrows.K[row][blockno]
   else:
     # Viimeinen blokki
-    currmaxpos=sarakkeita-gridvalues.blockrows.K[row][blockno]
+    currmaxpos=sarakkeita-gridvalues.blockrows.K[row][blockno]+1
 
   #print 'row %s block %s current min %s, max %s' % (row,blockno,currminpos,currmaxpos)
   #print gridvalues.blockrows.K[row]
@@ -135,14 +138,21 @@ def iterate(row,blockno,gridvalues):
   for currpos in range(currminpos,currmaxpos+1):
     gridvalues.blockrows.kerroin[row][blockno]=currpos
     gridvalues.updateRow(row)
+    #print "row %s, itercount %s" % (row,itercount)
+    #print "%s iterations per second" % (itercount/(timer()-starttime))
     #gridvalues.printgrid()
+    # Limit printing
+    if row >-1:
+      print "row %s, itercount %s" % (row,itercount)
+      print "%s iterations per second" % (itercount/(timer()-starttime))
+      gridvalues.printgrid()
+
+      #print gridvalues.blockrows.kerroin
+
     testAll(gridvalues)
+
+    # If not the first row, iterate previous row after every move
     if row > 0:
-      if row >0:
-        print "row %s, itercount %s" % (row,itercount)
-        print "%s iterations per second" % (itercount/(timer()-starttime))
-        gridvalues.printgrid()
-        #print gridvalues.blockrows.kerroin
       # Kunkin siirron jalkeen resetoidaan edellinen rivi ja iteroidaan myos se
       gridvalues.blockrows.resetRowToMin(row-1)
       iterate(row-1,len(gridvalues.blockrows.K[row-1])-1,gridvalues)
@@ -153,5 +163,5 @@ def iterate(row,blockno,gridvalues):
 
 
 
-iterate(24,len(gridvalues.blockrows.K[24])-1,gridvalues)
-gridvalues.printgrid()
+iterate(2,len(gridvalues.blockrows.K[1])-1,gridvalues)
+#gridvalues.printgrid()
