@@ -34,20 +34,22 @@ class Positio:
       for palikka in range(0,(len(self.K[row]))):
         kerroinrivi.append(self.minpositio(row,palikka))
       self.kerroin.append(kerroinrivi)
-    print "kertoimet"
-    print self.kerroin
+#    print "kertoimet"
+#    print self.kerroin
 
   def minpositio(self,row,palikkano):
-    if palikkano:
+#    print "minimipositio riville %s, palikalle %s" % (row,palikkano),
+    if (palikkano>0):
       minpos=0
-      #print "minimipositio riville %s, palikalle %s" % (row,palikkano)
       # Palikoiden yhteispituus plus yksi
       # Nollapalikan minimi on aina nolla
       for i in range(0,palikkano):
         minpos=minpos+self.K[row][i]+1
     else:
       # first block. Always zero
+#      print 0
       return 0
+#    print minpos
     return minpos
 
   def maxpositio(self,row,palikkano):
@@ -90,7 +92,7 @@ class Grid:
 
   def decToRow(self,n,rowno,colno=0):
     #print "converting row %s, value %s, col %s bit %s" % (rowno,n,colno,str(n%2))
-    binWghArray=pow(2,np.arange(1,26,1))
+    binWghArray=pow(2,np.arange(0,25,1))
 
 #    if n==0: return ''
 #    else:
