@@ -79,7 +79,7 @@ sarakkeita=len(T)-1
 
 blockrows=kuokka.Positio(K,sarakkeita)
 blockcols=kuokka.Positio(T,riveja)
-
+#print "suo %s " % blockcols.maxidx
 #print 'alustetut minimikertoimet'
 #print blockrows.kerroin
 
@@ -87,8 +87,8 @@ blockcols=kuokka.Positio(T,riveja)
 #for value in grid.rowvalues():
 #  print kuokka.decToBin(value)
 
-gridvalues=kuokka.Grid(blockrows,T)
-gridvalues.printgrid()
+grid=kuokka.Grid(blockrows,blockcols)
+grid.printgrid()
 
 
 def testAll(gridvalues,sarakkeita=26):
@@ -167,7 +167,7 @@ def iterate(row,blockno,gridvalues):
     if blockno > 0:
       iterate(row,blockno-1,gridvalues)
 
-iterate(24,len(gridvalues.blockrows.K[24])-1,gridvalues)
+#iterate(24,len(gridvalues.blockrows.K[24])-1,gridvalues)
 
 #rowiters=[]
 

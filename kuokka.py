@@ -26,8 +26,11 @@ class Positio:
     self.rowlenght=rowlenght
     self.K=Kin
     self.kerroin=[]
+    self.maxidx=(len(Kin)-1)
+
     self.possibleRowPos=[]
     self.possibleColPos=[]
+    #print Kin
 
     # Alustetaan palikkakertoimet K:n mukaan
     for row in range(0,(len(self.K))):
@@ -36,7 +39,7 @@ class Positio:
       for palikka in range(0,(len(self.K[row]))):
         kerroinrivi.append(self.minpositio(row,palikka))
         palikkapos=[]
-        print "row %s min %s, max %s" % (row,self.minpositio(row,palikka),self.maxpositio(row,palikka))
+        #print "row %s min %s, max %s" % (row,self.minpositio(row,palikka),self.maxpositio(row,palikka))
         for ispossible in range(self.minpositio(row,palikka),self.maxpositio(row,palikka)+1):
           palikkapos.append(ispossible)
         posrow.append(palikkapos)
@@ -90,24 +93,28 @@ class Positio:
     return values
 
 class Grid:
-  def __init__(self,blockrows,T):
+  def __init__(self,blockrows,blockcols):
     #print rowvalues
     #rowlength=len(T)
-    self.T=T
     self.blockrows=blockrows
-    self.grid=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
-    self.blackConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
-    self.whiteConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
+    self.blockcols=blockcols
+    print "gridissa"
+    self.maxrowid = self.blockrows.maxidx
+    self.maxcolid = self.blockcols.maxidx
+
+    self.grid=np.zeros((self.maxrowid+1,self.maxcolid+1),dtype="bool_")
+    self.blackConstraints=np.zeros((self.blockrows.maxidx+1,self.blockcols.maxidx+1),dtype="bool_")
+    self.whiteConstraints=np.zeros((self.blockrows.maxidx+1,self.blockcols.maxidx+1),dtype="bool_")
 
     # Given constraints:
     self.blackConstraints[3]=[0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0]
     self.blackConstraints[8]=[0,0,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0,0]
     self.blackConstraints[16]=[0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0]
     self.blackConstraints[21]=[0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,1,0,0,0]
-    for rowidx,row in enumerate(blockrows.rowvalues()):
+    for rowidx,row in enumerate(self.blockrows.rowvalues()):
       self.decToRow(row,rowidx)
-    self.binWghArray=np.zeros(len(T))
-    self.binWghArray=pow(2,np.arange(1,len(T),1))
+    self.binWghArray=np.zeros(self.blockcols.maxidx+1)
+    self.binWghArray=pow(2,np.arange(1,self.blockcols.maxidx+1,1))
     print self.blackConstraints.astype(int)
 
   def decToRow(self,n,rowno,colno=0):
@@ -136,8 +143,8 @@ class Grid:
     testcolumn=re.sub("[^0-1]","", str(self.grid.transpose().astype(int)[col]))
     #    #re.match("0*1{2}0+1{3}", "000110111000")
     regstring="0*"
-    n=len(self.T[col])
-    for idx,blocklen in enumerate(self.T[col]):
+    n=len(self.blockcol.K[col])
+    for idx,blocklen in enumerate(self.blockcol.K[col]):
       if idx>0:
         regstring=regstring+('1{%s}' % str(blocklen))
         if idx<n-1:
