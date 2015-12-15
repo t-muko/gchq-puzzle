@@ -28,14 +28,33 @@ class Positio:
     self.rowlenght=rowlenght
     self.K=Kin
     self.kerroin=[]
+    self.possibleRowPos=[]
+    self.possibleColPos=[]
+  # aluseteaan mahdolliset paikat tyhjilla arraylla
+ #   for n in self.K:
+ #     self.possibleRowPos.append([])
+ #   print self.possibleRowPos
+  # TODO: change K to T
+#    for n in self.K:
+#      self.possibleColPos.append([])
+
     # Alustetaan palikkakertoimet K:n mukaan
     for row in range(0,(len(self.K))):
       kerroinrivi=[]
+      posrow=[]
       for palikka in range(0,(len(self.K[row]))):
         kerroinrivi.append(self.minpositio(row,palikka))
+        palikkapos=[]
+        print "row %s min %s, max %s" % (row,self.minpositio(row,palikka),self.maxpositio(row,palikka))
+        for ispossible in range(self.minpositio(row,palikka),self.maxpositio(row,palikka)+1):
+          palikkapos.append(ispossible)
+        posrow.append(palikkapos)
       self.kerroin.append(kerroinrivi)
+      self.possibleRowPos.append(posrow)
 #    print "kertoimet"
 #    print self.kerroin
+    print "possilbes"
+    print self.possibleRowPos
 
   def minpositio(self,row,palikkano):
 #    print "minimipositio riville %s, palikalle %s" % (row,palikkano),
@@ -56,11 +75,12 @@ class Positio:
     # Maksimipalikkapositio on rivin pituus miinus palikoiden yhteismitta mukaanlukien palikka itse
     # plus palikoiden maara miinus yksi, paitsi jos on viimeinen palikka, niin silloin voi menna loppuun asti
     # Lasketaan siis kaikkien muiden paitsi viimeisen palikan mitat plus yksi yhteen ja sitten viela viimeinen
-    # palikka. Ja positio on taasen ykkosindeksoitu?
-    maxpos=self.rowlenght+1
-    for i in range(palikkano,len(self.K[row])):
+    # palikka.
+    maxpos=self.rowlenght
+    # Viimeisen palikan mitta otetaan pois aina, mutta koska alkupaikka on ekan ruuudun alla, lisataan yksi
+    maxpos=maxpos-self.K[row][len(self.K[row])-1]+1
+    for i in range(palikkano,len(self.K[row])-1):
       maxpos=maxpos-self.K[row][i]-1
-    maxpos=maxpos-self.K[row][len(self.K[row])]
     return maxpos
 
   def resetRowToMin(self,row):
@@ -85,6 +105,9 @@ class Grid:
     self.T=T
     self.blockrows=blockrows
     self.grid=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
+    self.BlackConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
+    self.WhiteConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
+
     for rowidx,row in enumerate(blockrows.rowvalues()):
       self.decToRow(row,rowidx)
     self.binWghArray=np.zeros(len(T))

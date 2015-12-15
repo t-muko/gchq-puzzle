@@ -71,7 +71,7 @@ T=[[7,2,1,1,7],
 starttime=timer()
 itercount=1
 riveja=len(K)
-sarakkeita=len(T)
+sarakkeita=len(T)-1
 
 print "riveja %s, sarakkeita %s" % (riveja,sarakkeita)
 #print "K"
