@@ -70,14 +70,16 @@ T=[[7,2,1,1,7],
 
 starttime=timer()
 itercount=1
-riveja=len(K)
+riveja=len(K)-1
 sarakkeita=len(T)-1
 
-print "riveja %s, sarakkeita %s" % (riveja,sarakkeita)
+#print "riveja %s, sarakkeita %s" % (riveja,sarakkeita)
 #print "K"
 #print K
 
 blockrows=kuokka.Positio(K,sarakkeita)
+blockcols=kuokka.Positio(T,riveja)
+
 #print 'alustetut minimikertoimet'
 #print blockrows.kerroin
 

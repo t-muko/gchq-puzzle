@@ -20,23 +20,14 @@ class Positio:
   # Start position has to be larger than the lenght of previous blocks and spaces
   # When creating an object, the positions are initialised to their minimum values
   # Inputs, Block lenght definition array K, lenght of the row rowlenght
-  #    for row in range(1,(len(self.K)+1)):
-  # K array ja positioarray ovat ykkosindeksoituja
-  # Rivit nollaindeksoituja
-  # Positiot nollaindeksoituja
+  # Everything is zero indexed
+
   def __init__(self,Kin,rowlenght):
     self.rowlenght=rowlenght
     self.K=Kin
     self.kerroin=[]
     self.possibleRowPos=[]
     self.possibleColPos=[]
-  # aluseteaan mahdolliset paikat tyhjilla arraylla
- #   for n in self.K:
- #     self.possibleRowPos.append([])
- #   print self.possibleRowPos
-  # TODO: change K to T
-#    for n in self.K:
-#      self.possibleColPos.append([])
 
     # Alustetaan palikkakertoimet K:n mukaan
     for row in range(0,(len(self.K))):
@@ -53,8 +44,8 @@ class Positio:
       self.possibleRowPos.append(posrow)
 #    print "kertoimet"
 #    print self.kerroin
-    print "possilbes"
-    print self.possibleRowPos
+#    print "possilbes"
+#    print self.possibleRowPos
 
   def minpositio(self,row,palikkano):
 #    print "minimipositio riville %s, palikalle %s" % (row,palikkano),
@@ -105,22 +96,30 @@ class Grid:
     self.T=T
     self.blockrows=blockrows
     self.grid=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
-    self.BlackConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
-    self.WhiteConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
+    self.blackConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
+    self.whiteConstraints=np.zeros((len(blockrows.rowvalues()),len(T)),dtype="bool_")
 
+    # Given constraints:
+    self.blackConstraints[3]=[0,0,0,1,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0]
+    self.blackConstraints[8]=[0,0,0,0,0,0,1,1,0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0,0]
+    self.blackConstraints[16]=[0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0]
+    self.blackConstraints[21]=[0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,1,0,0,0]
     for rowidx,row in enumerate(blockrows.rowvalues()):
       self.decToRow(row,rowidx)
     self.binWghArray=np.zeros(len(T))
     self.binWghArray=pow(2,np.arange(1,len(T),1))
+    print self.blackConstraints.astype(int)
 
   def decToRow(self,n,rowno,colno=0):
     #print "converting row %s, value %s, col %s bit %s" % (rowno,n,colno,str(n%2))
+    # make an array with numbers 0-24 and raise two to that power
     binWghArray=pow(2,np.arange(0,25,1))
 
 #    if n==0: return ''
 #    else:
 #        self.grid[rowno,colno]=n%2
 #        self.decToRow(n/2,rowno,colno+1)
+    # divide the number to be converted with binary weighed array. Take modulo 2 of that to create a binary array
     self.grid[rowno]=(n/binWghArray)%2
     return
 
