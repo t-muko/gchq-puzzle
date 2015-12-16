@@ -88,6 +88,10 @@ blockcols=kuokka.Positio(T,riveja)
 #  print kuokka.decToBin(value)
 
 grid=kuokka.Grid(blockrows,blockcols)
+print grid.checkIfBlockFits(0,21,0,5)
+print grid.checkIfBlockFits(0,21,0,4)
+grid.freezeBlock(0,3,2,3)
+grid.setCommonBlobs(0,0,[0,1,2],7)
 grid.printgrid()
 
 
