@@ -1,6 +1,9 @@
 import numpy as np
 import re
 import array
+import threading
+
+from Tkinter import *
 
 def decToBin(n):
     if n==0: return ''
@@ -30,7 +33,7 @@ class Positio:
     self.maxidx=(len(Kin)-1)
 
     self.possibleRowPos=[]
-    self.possibleColPos=[]
+
     #print Kin
 
     # Alustetaan palikkakertoimet K:n mukaan
@@ -45,14 +48,14 @@ class Positio:
       posrow=[]
       for palikka in range(0,(len(self.K[line]))):
         palikkapos=array.array('i')
-        print "line %s palikka %s min %s, max %s" % (line, palikka,self.minpositio(line,palikka),self.maxpositio(line,palikka))
+        #print "line %s palikka %s min %s, max %s" % (line, palikka,self.minpositio(line,palikka),self.maxpositio(line,palikka))
         for ispossible in range(self.minpositio(line,palikka),self.maxpositio(line,palikka)+1):
-          print ispossible
+          #print ispossible
           palikkapos.append(ispossible)
         #print palikkapos
         posrow.append(palikkapos)
       self.possibleRowPos.append(posrow)
-      print self.possibleRowPos
+      #print self.possibleRowPos
 #    print "kertoimet"
 #    print self.kerroin
 #    print "possilbes"
@@ -99,6 +102,15 @@ class Positio:
         rowsum=rowsum+(pow(2,self.K[rowidx][idx-1])-1)*pow(2,self.kerroin[rowidx][idx-1])
       values.append(rowsum)
     return values
+
+  def printFreedoms(self,direction,verbose='detail'):
+    permutations=1
+    for lineidx,line in enumerate(self.possibleRowPos):
+      for blockidx,block in enumerate(line):
+        permutations=permutations*len(block)
+        if (len(block)>1 & (verbose=='detail')):
+          print "Line (%s) %s, block %s has got %s possible locations %s" % (direction,lineidx,blockidx,len(block), self.possibleRowPos[lineidx][blockidx])
+    print "Total %s permutations." % permutations
 
 class Grid:
   def __init__(self,blockrows,blockcols):
@@ -161,15 +173,28 @@ class Grid:
       blackConstraints=self.blackConstraints
     # 1. Check that there are no white blobs under the block
     if np.any(np.logical_and(self.posLenToBinArray(position,length), whiteConstraints[line])):
+      print "dir %s: line %s, pos %s, len %s. White constraint found." % (direction,line,position,length)
+      print 'white constraints and test line'
+      print whiteConstraints[line].astype(int)
+      print self.posLenToBinArray(position,length)
       return False
     # 2. Check that there are no black blobs at the ends
     if position>0:
       if np.any(np.logical_and(self.posLenToBinArray(position-1,1), blackConstraints[line])):
+        print "dir %s: line %s, pos %s, len %s. Pos>0. Black blob below." % (direction,line,position,length)
+        print 'black constraints and test line'
+        print blackConstraints[line].astype(int)
+        print self.posLenToBinArray(position,length)
         return False
     if position<np.shape(whiteConstraints)[0]:
       if np.any(np.logical_and(self.posLenToBinArray(position+length,1), blackConstraints[line])):
+        print "dir %s: line %s, pos %s, len %s. pos less than max. Blob above!." % (direction,line,position,length)
+        print 'black constraints and test line'
+        print blackConstraints[line].astype(int)
+        print self.posLenToBinArray(position,length)
         return False
     # All tests passed, so it must be True!
+    #print "dir %s: line %s, pos %s, len %s. No constraints found." % (direction,line,position,length)
     return True
 
   def setCommonBlobs(self,direction,line,possiblePos,length):
@@ -179,7 +204,7 @@ class Grid:
       commonBlobs=np.logical_and(self.posLenToBinArray(pos,length),commonBlobs)
 
     if direction:
-      tempGrid=np.transpose(elf.blackConstraints)
+      tempGrid=np.transpose(self.blackConstraints)
       tempGrid[line]=np.logical_or(tempGrid[line],commonBlobs)
       self.blackConstraints=np.transpose(tempGrid)
 
@@ -234,3 +259,46 @@ class Grid:
 #    print regstring
     return bool(re.match(regstring,testcolumn))
 
+
+
+class Graphics(threading.Thread):
+  def __init__(self,grid):
+    threading.Thread.__init__(self)
+    self.grid=grid
+    self.start()
+
+  def callback(self):
+    self.root.quit()
+
+  def run(self):
+    self.root = Tk()
+    self.root.protocol("WM_DELETE_WINDOW", self.callback)
+
+    #label = tk.Label(self.root, text="Hello World")
+    #label.pack()
+
+    self.root.mainloop()
+
+  def test(self):
+    self.canvas.create_rectangle(  0,   0, 150, 150, fill="yellow")
+    self.canvas.create_rectangle(100,  50, 250, 100, fill="orange", width=5)
+  def test2(self):
+    self.canvas.create_rectangle( 50, 100, 150, 200, fill="green", outline="red", width=3)
+    self.canvas.create_rectangle(125,  25, 175, 190, fill="purple", width=0)
+    #self.root.mainloop()
+
+  def lightBlock(self,line,col,colour):
+    self.canvas.create_rectangle(  0+10*line,   0+10*col, 10+10*line, 10+10*col, fill=colour)
+
+  def showGrid(self):
+    self.canvas = Canvas(self.root, width=260, height=260)
+    self.canvas.pack()
+
+    for row,line in enumerate(self.grid.blackConstraints):
+      for col,bit in enumerate(line):
+        if bit:
+          self.lightBlock(row,col,'black')
+      for row,line in enumerate(self.grid.whiteConstraints):
+        for col,bit in enumerate(line):
+          if bit:
+            self.lightBlock(row,col,'white')

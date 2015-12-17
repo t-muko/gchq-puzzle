@@ -74,6 +74,8 @@ itercount=1
 riveja=len(K)-1
 sarakkeita=len(T)-1
 
+
+
 #print "riveja %s, sarakkeita %s" % (riveja,sarakkeita)
 #print "K"
 #print K
@@ -93,33 +95,66 @@ grid=kuokka.Grid(blockrows,blockcols)
 #print grid.checkIfBlockFits(0,21,0,4)
 #grid.freezeBlock(0,3,2,3)
 #grid.setCommonBlobs(0,0,[0,1,2],7)
-
+UI=kuokka.Graphics(grid)
+#grid.printgrid()
 #print blockrows.possibleRowPos[0][0]
 
-for lineidx, line in enumerate(blockrows.possibleRowPos):
-  for blockidx,block in enumerate(line):
-    grid.setCommonBlobs(0,lineidx,block,blockrows.K[lineidx][blockidx])
+def rowinduction():
+  for lineidx, line in enumerate(blockrows.possibleRowPos):
+    for blockidx,block in enumerate(line):
+      grid.setCommonBlobs(0,lineidx,block,blockrows.K[lineidx][blockidx])
+      UI.showGrid()
+      stillpossible=array.array('i')
+      for posidx,position in enumerate(block):
 
-    stillpossible=array.array('i')
-    for posidx,position in enumerate(block):
+        # if position is still possible, add it to the new possible position array
+        if (grid.checkIfBlockFits(0,lineidx,position,blockrows.K[lineidx][blockidx])):
+          stillpossible.append(position)
 
-      # if position is still possible, add it to the new possible position array
-      if (grid.checkIfBlockFits(0,lineidx,position,blockrows.K[lineidx][blockidx])):
-        stillpossible.append(position)
-
-      # save the new possible rows array
-      blockrows.possibleRowPos[lineidx][blockidx]=stillpossible
+#        print "before"
+#        print blockrows.possibleRowPos[lineidx][blockidx]
+        # save the new possible rows array
+        blockrows.possibleRowPos[lineidx][blockidx]=stillpossible
+#        print "after"
+#        print blockrows.possibleRowPos[lineidx][blockidx]
 
       # if we have got only one possible position left, the block can be freezed
       if len(stillpossible)==1:
         lastpos=blockrows.possibleRowPos[lineidx][blockidx]
         #print "last position: %s" % lastpos
-        print "Line %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],K[lineidx][blockidx])
-        grid.freezeBlock(0,lineidx,lastpos[0],K[lineidx][blockidx])
+        #print "Row %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],blockrows.K[lineidx][blockidx])
+        grid.freezeBlock(0,lineidx,lastpos[0],blockrows.K[lineidx][blockidx])
 
+def colinduction():
+  for lineidx, line in enumerate(blockcols.possibleRowPos):
+    for blockidx,block in enumerate(line):
+      grid.setCommonBlobs(1,lineidx,block,blockcols.K[lineidx][blockidx])
 
+      stillpossible=array.array('i')
+      for posidx,position in enumerate(block):
 
-grid.printgrid()
+        # if position is still possible, add it to the new possible position array
+        if (grid.checkIfBlockFits(1,lineidx,position,blockcols.K[lineidx][blockidx])):
+          stillpossible.append(position)
+
+        # save the new possible rows array
+        blockcols.possibleRowPos[lineidx][blockidx]=stillpossible
+        UI.showGrid()
+
+      # if we have got only one possible position left, the block can be freezed
+      if len(stillpossible)==1:
+        lastpos=blockcols.possibleRowPos[lineidx][blockidx]
+        #print "last position: %s" % lastpos
+        #print "Col %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
+        grid.freezeBlock(1,lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
+
+for i in range(0,1):
+  rowinduction()
+  colinduction()
+  grid.printgrid()
+  blockrows.printFreedoms('row','no')
+  blockcols.printFreedoms('Col','no')
+#print blockcols.possibleRowPos
 
 
 def testAll(gridvalues,sarakkeita=26):
@@ -217,3 +252,6 @@ def iterate(row,blockno,gridvalues):
 #  totiters=totiters*rowiters[n]
 
 #print "Total iterations: %s " % totiters
+
+UI.showGrid()
+#UI.test2()
