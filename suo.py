@@ -2,6 +2,7 @@ import kuokka
 import array
 from timeit import default_timer as timer
 import numpy as np
+import time
 
 #from kuokka import positio
 #import numpy as np
@@ -96,6 +97,7 @@ grid=kuokka.Grid(blockrows,blockcols)
 #grid.freezeBlock(0,3,2,3)
 #grid.setCommonBlobs(0,0,[0,1,2],7)
 UI=kuokka.Graphics(grid)
+time.sleep(2)
 #grid.printgrid()
 #print blockrows.possibleRowPos[0][0]
 
@@ -103,7 +105,7 @@ def rowinduction():
   for lineidx, line in enumerate(blockrows.possibleRowPos):
     for blockidx,block in enumerate(line):
       grid.setCommonBlobs(0,lineidx,block,blockrows.K[lineidx][blockidx])
-      UI.showGrid()
+      #UI.showGrid()
       stillpossible=array.array('i')
       for posidx,position in enumerate(block):
 
@@ -139,7 +141,7 @@ def colinduction():
 
         # save the new possible rows array
         blockcols.possibleRowPos[lineidx][blockidx]=stillpossible
-        UI.showGrid()
+        #UI.showGrid()
 
       # if we have got only one possible position left, the block can be freezed
       if len(stillpossible)==1:
@@ -148,9 +150,11 @@ def colinduction():
         #print "Col %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
         grid.freezeBlock(1,lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
 
-for i in range(0,1):
+for i in range(0,3):
   rowinduction()
+  UI.showGrid()
   colinduction()
+  UI.showGrid()
   grid.printgrid()
   blockrows.printFreedoms('row','no')
   blockcols.printFreedoms('Col','no')
@@ -253,5 +257,5 @@ def iterate(row,blockno,gridvalues):
 
 #print "Total iterations: %s " % totiters
 
-UI.showGrid()
+#UI.showGrid()
 #UI.test2()

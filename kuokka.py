@@ -3,7 +3,7 @@ import re
 import array
 import threading
 
-from Tkinter import *
+import Tkinter as tk
 
 def decToBin(n):
     if n==0: return ''
@@ -266,16 +266,25 @@ class Graphics(threading.Thread):
     threading.Thread.__init__(self)
     self.grid=grid
     self.start()
+    self.scale=2
+    self.offset=120
 
   def callback(self):
     self.root.quit()
 
   def run(self):
-    self.root = Tk()
+    self.root = tk.Tk()
     self.root.protocol("WM_DELETE_WINDOW", self.callback)
+    self.canvas = tk.Canvas(self.root, width=250*self.scale+self.offset, height=250*self.scale+self.offset)
+    self.canvas.pack()
+    label = tk.Label(self.root, text="Hello World")
+    label.pack()
+    for idx,line in enumerate(self.grid.blockrows.K):
+      self.canvas.create_text(50,10+idx*22+self.offset,text=line)
 
-    #label = tk.Label(self.root, text="Hello World")
-    #label.pack()
+    for i in range(10,250,10):
+      self.canvas.create_line(i*self.scale+self.offset, 0*self.scale+self.offset, i*self.scale+self.offset, 250*self.scale+self.offset, fill="grey")
+      self.canvas.create_line(0*self.scale+self.offset, i*self.scale+self.offset, 250*self.scale+self.offset, i*self.scale+self.offset, fill="grey")
 
     self.root.mainloop()
 
@@ -285,15 +294,12 @@ class Graphics(threading.Thread):
   def test2(self):
     self.canvas.create_rectangle( 50, 100, 150, 200, fill="green", outline="red", width=3)
     self.canvas.create_rectangle(125,  25, 175, 190, fill="purple", width=0)
-    #self.root.mainloop()
 
   def lightBlock(self,line,col,colour):
-    self.canvas.create_rectangle(  0+10*line,   0+10*col, 10+10*line, 10+10*col, fill=colour)
+    self.canvas.create_rectangle(  (0+10*line)*self.scale+self.offset,   (0+10*col)*self.scale+self.offset, (10+10*line)*self.scale+self.offset, (10+10*col)*self.scale+self.offset, fill=colour)
 
   def showGrid(self):
-    self.canvas = Canvas(self.root, width=260, height=260)
-    self.canvas.pack()
-
+    #self.canvas.create_rectangle(100,  50, 250, 100, fill="orange", width=5)
     for row,line in enumerate(self.grid.blackConstraints):
       for col,bit in enumerate(line):
         if bit:
@@ -302,3 +308,4 @@ class Graphics(threading.Thread):
         for col,bit in enumerate(line):
           if bit:
             self.lightBlock(row,col,'white')
+
