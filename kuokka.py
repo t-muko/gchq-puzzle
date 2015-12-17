@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import array
 
 def decToBin(n):
     if n==0: return ''
@@ -34,17 +35,24 @@ class Positio:
 
     # Alustetaan palikkakertoimet K:n mukaan
     for row in range(0,(len(self.K))):
-      kerroinrivi=[]
-      posrow=[]
+      kerroinrivi=array.array('i')
       for palikka in range(0,(len(self.K[row]))):
         kerroinrivi.append(self.minpositio(row,palikka))
-        palikkapos=[]
-        #print "row %s min %s, max %s" % (row,self.minpositio(row,palikka),self.maxpositio(row,palikka))
-        for ispossible in range(self.minpositio(row,palikka),self.maxpositio(row,palikka)+1):
-          palikkapos.append(ispossible)
-        posrow.append(palikkapos)
       self.kerroin.append(kerroinrivi)
+
+    # Alustetaan mahdolliset positiot jokaiselle palikalle
+    for line in range(0,(len(self.K))):
+      posrow=[]
+      for palikka in range(0,(len(self.K[line]))):
+        palikkapos=array.array('i')
+        print "line %s palikka %s min %s, max %s" % (line, palikka,self.minpositio(line,palikka),self.maxpositio(line,palikka))
+        for ispossible in range(self.minpositio(line,palikka),self.maxpositio(line,palikka)+1):
+          print ispossible
+          palikkapos.append(ispossible)
+        #print palikkapos
+        posrow.append(palikkapos)
       self.possibleRowPos.append(posrow)
+      print self.possibleRowPos
 #    print "kertoimet"
 #    print self.kerroin
 #    print "possilbes"
@@ -180,7 +188,8 @@ class Grid:
 
 
   def freezeBlock(self,direction,line,position,length):
-    # Extend the block to both directions unless we are just in the edge and enter white constraints
+    # set black blobs and Extend the block to both directions unless we are just in the edge and enter white constraints
+    self.setCommonBlobs(direction,line,[position],length)
     if direction:
       # Working on columns
       if position>0:

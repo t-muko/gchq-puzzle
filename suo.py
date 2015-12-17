@@ -1,4 +1,5 @@
 import kuokka
+import array
 from timeit import default_timer as timer
 import numpy as np
 
@@ -88,10 +89,36 @@ blockcols=kuokka.Positio(T,riveja)
 #  print kuokka.decToBin(value)
 
 grid=kuokka.Grid(blockrows,blockcols)
-print grid.checkIfBlockFits(0,21,0,5)
-print grid.checkIfBlockFits(0,21,0,4)
-grid.freezeBlock(0,3,2,3)
-grid.setCommonBlobs(0,0,[0,1,2],7)
+#print grid.checkIfBlockFits(0,21,0,5)
+#print grid.checkIfBlockFits(0,21,0,4)
+#grid.freezeBlock(0,3,2,3)
+#grid.setCommonBlobs(0,0,[0,1,2],7)
+
+#print blockrows.possibleRowPos[0][0]
+
+for lineidx, line in enumerate(blockrows.possibleRowPos):
+  for blockidx,block in enumerate(line):
+    grid.setCommonBlobs(0,lineidx,block,blockrows.K[lineidx][blockidx])
+
+    stillpossible=array.array('i')
+    for posidx,position in enumerate(block):
+
+      # if position is still possible, add it to the new possible position array
+      if (grid.checkIfBlockFits(0,lineidx,position,blockrows.K[lineidx][blockidx])):
+        stillpossible.append(position)
+
+      # save the new possible rows array
+      blockrows.possibleRowPos[lineidx][blockidx]=stillpossible
+
+      # if we have got only one possible position left, the block can be freezed
+      if len(stillpossible)==1:
+        lastpos=blockrows.possibleRowPos[lineidx][blockidx]
+        #print "last position: %s" % lastpos
+        print "Line %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],K[lineidx][blockidx])
+        grid.freezeBlock(0,lineidx,lastpos[0],K[lineidx][blockidx])
+
+
+
 grid.printgrid()
 
 
