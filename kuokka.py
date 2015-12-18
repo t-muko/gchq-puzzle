@@ -92,6 +92,28 @@ class Positio:
     for palikka in range(0,(len(self.K[row]))):
       self.kerroin[row][palikka]=self.minpositio(row,palikka)
 
+  def checkBlockChain(self):
+
+    for line in range(0,len(self.possibleRowPos)):
+      for blockidx in range(1,len(self.possibleRowPos[line])):
+        #print "before up run %s" % self.possibleRowPos[line][blockidx],
+        self.possibleRowPos[line][blockidx]=[i for i in self.possibleRowPos[line][blockidx] if
+                                               i > min(self.possibleRowPos[line][blockidx-1])+self.K[line][blockidx-1]]
+
+        #print "after up run %s" % self.possibleRowPos[line][blockidx]
+
+    for line in range(0,len(self.possibleRowPos)):
+      print "line %s" % line,
+      for blockidx in range((len(self.possibleRowPos[line])-2),0-1,-1):
+        #print "before down run %s" % self.possibleRowPos[line][blockidx]
+        self.possibleRowPos[line][blockidx]=[i for i in self.possibleRowPos[line][blockidx] if
+                                               i < max(self.possibleRowPos[line][blockidx+1])-self.K[line][blockidx]]
+        #print "after down run %s" % self.possibleRowPos[line][blockidx]
+
+
+
+
+
 
   def rowvalues(self):
     values=[]
@@ -173,25 +195,25 @@ class Grid:
       blackConstraints=self.blackConstraints
     # 1. Check that there are no white blobs under the block
     if np.any(np.logical_and(self.posLenToBinArray(position,length), whiteConstraints[line])):
-      print "dir %s: line %s, pos %s, len %s. White constraint found under the block." % (direction,line,position,length)
-      print 'white constraints and test line'
-      print whiteConstraints[line].astype(int)
-      print self.posLenToBinArray(position,length)
+      #print "dir %s: line %s, pos %s, len %s. White constraint found under the block." % (direction,line,position,length)
+      #print 'white constraints and test line'
+      #print whiteConstraints[line].astype(int)
+      #print self.posLenToBinArray(position,length)
       return False
     # 2. Check that there are no black blobs at the ends
     if position>0:
       if np.any(np.logical_and(self.posLenToBinArray(position-1,1), blackConstraints[line])):
-        print "dir %s: line %s, pos %s, len %s. Pos>0. Black blob before block." % (direction,line,position,length)
-        print 'black constraints and test line'
-        print blackConstraints[line].astype(int)
-        print self.posLenToBinArray(position,length)
+        #print "dir %s: line %s, pos %s, len %s. Pos>0. Black blob before block." % (direction,line,position,length)
+        #print 'black constraints and test line'
+        #print blackConstraints[line].astype(int)
+        #print self.posLenToBinArray(position,length)
         return False
     if position<np.shape(whiteConstraints)[0]:
       if np.any(np.logical_and(self.posLenToBinArray(position+length,1), blackConstraints[line])):
-        print "dir %s: line %s, pos %s, len %s. pos less than max. Blob after block." % (direction,line,position,length)
-        print 'black constraints and test line'
-        print blackConstraints[line].astype(int)
-        print self.posLenToBinArray(position,length)
+        #print "dir %s: line %s, pos %s, len %s. pos less than max. Blob after block." % (direction,line,position,length)
+        #print 'black constraints and test line'
+        #print blackConstraints[line].astype(int)
+        #print self.posLenToBinArray(position,length)
         return False
     # All tests passed, so it must be True!
     #print "dir %s: line %s, pos %s, len %s. No constraints found." % (direction,line,position,length)
@@ -238,7 +260,7 @@ class Grid:
         self.whiteConstraints[line][position+length]=1
 
   def walkFromBoundary(self,direction,line):
-    if direction:
+    if (direction>0):
       whiteConstraints=np.transpose(self.whiteConstraints)
       blackConstraints=np.transpose(self.blackConstraints)
     else:
@@ -264,16 +286,28 @@ class Grid:
         # Test if we are on a ongoing block or at the start of a new one
 
         if backAgainstBoundary:
-          # This must be the first block of the row. Next one can't
+          # This must be the first blob of the block. Next one can't
           backAgainstBoundary=0
           startpos=walker
 
           # We can freeze this block!
           if (direction>0):
+            print "Walker freezing dir %s line %s, block no %s," % (direction,line,blockno)
             self.freezeBlock(direction,line,startpos,self.blockcols.K[line][blockno])
+            # read constraints again
+            whiteConstraints=np.transpose(self.whiteConstraints)
+            blackConstraints=np.transpose(self.blackConstraints)
           else:
+            print "Walker freezing dir %s line %s, block no %s," % (direction,line,blockno)
             self.freezeBlock(direction,line,startpos,self.blockrows.K[line][blockno])
+            # read constraints again
+            whiteConstraints=self.whiteConstraints
+            blackConstraints=self.blackConstraints
+
           blockno=blockno+1
+
+          # carry on... i.e. start again
+
 
         else:
           # existing ongoing blob... Back still against something
@@ -354,6 +388,10 @@ class Graphics(threading.Thread):
   def lightBlock(self,line,col,colour):
     self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*line)*self.scale+self.offset, (10+10*col)*self.scale+self.offset, (10+10*line)*self.scale+self.offset,fill=colour)
 
+  def drawBlockFreedom(self,linemin,linemax,colmin,colmax,no=3,color='yellow'):
+    self.canvas.create_line((no*1.5+10*colmin)*self.scale+self.offset,(0+10*linemin)*self.scale+self.offset,
+                            (no*1.5+10*colmax)*self.scale+self.offset, (0+10*linemax)*self.scale+self.offset,fill=color,arrow=tk.BOTH)
+
   def showGrid(self):
     #self.canvas.create_rectangle(100,  50, 250, 100, fill="orange", width=5)
     for row,line in enumerate(self.grid.blackConstraints):
@@ -364,4 +402,12 @@ class Graphics(threading.Thread):
         for col,bit in enumerate(line):
           if bit:
             self.lightBlock(row,col,'white')
+    #self.showFreedom()
 
+  def showFreedom(self):
+    for row,line in enumerate(self.grid.blockrows.possibleRowPos):
+      for blockno,blockpossibility in enumerate(line):
+        self.drawBlockFreedom(row,row,min(blockpossibility),max(blockpossibility),blockno,'yellow')
+    for row,line in enumerate(self.grid.blockcols.possibleRowPos):
+      for blockno,blockpossibility in enumerate(line):
+        self.drawBlockFreedom(min(blockpossibility),max(blockpossibility),row,row,blockno,'red')

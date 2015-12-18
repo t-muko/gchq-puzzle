@@ -123,7 +123,7 @@ def rowinduction():
       if len(stillpossible)==1:
         lastpos=blockrows.possibleRowPos[lineidx][blockidx]
         #print "last position: %s" % lastpos
-        #print "Row %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],blockrows.K[lineidx][blockidx])
+        print "Induction freezing Row %s, position %s, lenght %s" % (lineidx,lastpos[0],blockrows.K[lineidx][blockidx])
         grid.freezeBlock(0,lineidx,lastpos[0],blockrows.K[lineidx][blockidx])
 
 def colinduction():
@@ -146,30 +146,35 @@ def colinduction():
       if len(stillpossible)==1:
         lastpos=blockcols.possibleRowPos[lineidx][blockidx]
         #print "last position: %s" % lastpos
-        #print "Col %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
+        print "Induction freezing Col %s, position %s, lenght %s" % (lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
         grid.freezeBlock(1,lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
 
 UI.showGrid()
 #time.sleep(1)
 #grid.freezeBlock(0,6,7,blockrows.K[6][0])
 
-for i in range(0,30):
+for i in range(0,5):
   print "ROUND %s" % i
   rowinduction()
 #  UI.showGrid()
   colinduction()
   UI.showGrid()
+
   for line in range(0,25):
     grid.walkFromBoundary(0,line)
   UI.showGrid()
   for line in range(0,25):
     grid.walkFromBoundary(1,line)
   UI.showGrid()
+  blockcols.checkBlockChain()
+  UI.showGrid()
+  blockrows.checkBlockChain()
+  UI.showGrid()
   #grid.printgrid()
 #  blockrows.printFreedoms('row','no')
 #  blockcols.printFreedoms('Col','no')
 #print blockcols.possibleRowPos
-
+UI.showFreedom()
 
 def testAll(gridvalues,sarakkeita=26):
   overallResult=True
