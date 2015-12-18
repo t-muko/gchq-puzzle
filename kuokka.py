@@ -277,6 +277,7 @@ class Grid:
       if whiteConstraints[line][walker]:
         # Good. First blob is a white constraint
         backAgainstBoundary=1
+        startpos=walker+1
         continue
 
       # With white constraint, we never get this far. So it is either back or blank
