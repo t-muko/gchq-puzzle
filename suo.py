@@ -67,7 +67,6 @@ T=[[7,2,1,1,7],
    [1,3,1,1,1,2,1,1,4],
    [1,3,1,4,3,3],
    [1,1,2,2,2,6,1],
-#   [0,1,1]]
    [7,1,3,2,1,1]]
 
 starttime=timer()
@@ -146,18 +145,23 @@ def colinduction():
       # if we have got only one possible position left, the block can be freezed
       if len(stillpossible)==1:
         lastpos=blockcols.possibleRowPos[lineidx][blockidx]
-        #print "last position: %s" % lastpos
-        #print "Col %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
+        print "last position: %s" % lastpos
+        print "Col %s, position %s, lenght %s is frozen" % (lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
         grid.freezeBlock(1,lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
 
-for i in range(0,3):
+UI.showGrid()
+#time.sleep(1)
+#grid.freezeBlock(0,6,7,blockrows.K[6][0])
+
+for i in range(0,1):
+  print "ROUND %s" % i
   rowinduction()
-  UI.showGrid()
+#  UI.showGrid()
   colinduction()
   UI.showGrid()
   grid.printgrid()
-  blockrows.printFreedoms('row','no')
-  blockcols.printFreedoms('Col','no')
+#  blockrows.printFreedoms('row','no')
+#  blockcols.printFreedoms('Col','no')
 #print blockcols.possibleRowPos
 
 

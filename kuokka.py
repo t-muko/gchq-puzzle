@@ -173,7 +173,7 @@ class Grid:
       blackConstraints=self.blackConstraints
     # 1. Check that there are no white blobs under the block
     if np.any(np.logical_and(self.posLenToBinArray(position,length), whiteConstraints[line])):
-      print "dir %s: line %s, pos %s, len %s. White constraint found." % (direction,line,position,length)
+      print "dir %s: line %s, pos %s, len %s. White constraint found under the block." % (direction,line,position,length)
       print 'white constraints and test line'
       print whiteConstraints[line].astype(int)
       print self.posLenToBinArray(position,length)
@@ -181,14 +181,14 @@ class Grid:
     # 2. Check that there are no black blobs at the ends
     if position>0:
       if np.any(np.logical_and(self.posLenToBinArray(position-1,1), blackConstraints[line])):
-        print "dir %s: line %s, pos %s, len %s. Pos>0. Black blob below." % (direction,line,position,length)
+        print "dir %s: line %s, pos %s, len %s. Pos>0. Black blob before block." % (direction,line,position,length)
         print 'black constraints and test line'
         print blackConstraints[line].astype(int)
         print self.posLenToBinArray(position,length)
         return False
     if position<np.shape(whiteConstraints)[0]:
       if np.any(np.logical_and(self.posLenToBinArray(position+length,1), blackConstraints[line])):
-        print "dir %s: line %s, pos %s, len %s. pos less than max. Blob above!." % (direction,line,position,length)
+        print "dir %s: line %s, pos %s, len %s. pos less than max. Blob after block." % (direction,line,position,length)
         print 'black constraints and test line'
         print blackConstraints[line].astype(int)
         print self.posLenToBinArray(position,length)
@@ -203,7 +203,7 @@ class Grid:
     for pos in possiblePos:
       commonBlobs=np.logical_and(self.posLenToBinArray(pos,length),commonBlobs)
 
-    if direction:
+    if (direction>0):
       tempGrid=np.transpose(self.blackConstraints)
       tempGrid[line]=np.logical_or(tempGrid[line],commonBlobs)
       self.blackConstraints=np.transpose(tempGrid)
@@ -215,8 +215,9 @@ class Grid:
   def freezeBlock(self,direction,line,position,length):
     # set black blobs and Extend the block to both directions unless we are just in the edge and enter white constraints
     self.setCommonBlobs(direction,line,[position],length)
-    if direction:
+    if (direction>0):
       # Working on columns
+      print "Freezing columns..."
       if position>0:
         #We are above lower boundary, so can extend down
         self.whiteConstraints[position-1][line]=1
@@ -227,6 +228,7 @@ class Grid:
 
     else:
       # Working on rows
+      print "Freezing rows..."
       if position>0:
         #We are above lower boundary, so can extend down
         self.whiteConstraints[line][position-1]=1
@@ -267,7 +269,7 @@ class Graphics(threading.Thread):
     self.grid=grid
     self.start()
     self.scale=2
-    self.offset=120
+    self.offset=140
 
   def callback(self):
     self.root.quit()
@@ -275,12 +277,15 @@ class Graphics(threading.Thread):
   def run(self):
     self.root = tk.Tk()
     self.root.protocol("WM_DELETE_WINDOW", self.callback)
-    self.canvas = tk.Canvas(self.root, width=250*self.scale+self.offset, height=250*self.scale+self.offset)
+    self.canvas = tk.Canvas(self.root, width=255*self.scale+self.offset, height=250*self.scale+self.offset)
     self.canvas.pack()
     label = tk.Label(self.root, text="Hello World")
     label.pack()
     for idx,line in enumerate(self.grid.blockrows.K):
-      self.canvas.create_text(50,10+idx*22+self.offset,text=line)
+      self.canvas.create_text(20,10+idx*10*self.scale+self.offset,text=line,anchor="w")
+
+    for idx,line in enumerate(self.grid.blockcols.K):
+      self.canvas.create_text((10+idx*10*self.scale+self.offset,5), text="\n".join([str(x) for x in line]), anchor="n")
 
     for i in range(10,250,10):
       self.canvas.create_line(i*self.scale+self.offset, 0*self.scale+self.offset, i*self.scale+self.offset, 250*self.scale+self.offset, fill="grey")
@@ -296,7 +301,7 @@ class Graphics(threading.Thread):
     self.canvas.create_rectangle(125,  25, 175, 190, fill="purple", width=0)
 
   def lightBlock(self,line,col,colour):
-    self.canvas.create_rectangle(  (0+10*line)*self.scale+self.offset,   (0+10*col)*self.scale+self.offset, (10+10*line)*self.scale+self.offset, (10+10*col)*self.scale+self.offset, fill=colour)
+    self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*line)*self.scale+self.offset, (10+10*col)*self.scale+self.offset, (10+10*line)*self.scale+self.offset,fill=colour)
 
   def showGrid(self):
     #self.canvas.create_rectangle(100,  50, 250, 100, fill="orange", width=5)
