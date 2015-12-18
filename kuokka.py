@@ -217,7 +217,7 @@ class Grid:
     self.setCommonBlobs(direction,line,[position],length)
     if (direction>0):
       # Working on columns
-      print "Freezing columns..."
+      #print "Freezing columns..."
       if position>0:
         #We are above lower boundary, so can extend down
         self.whiteConstraints[position-1][line]=1
@@ -228,7 +228,7 @@ class Grid:
 
     else:
       # Working on rows
-      print "Freezing rows..."
+      #print "Freezing rows..."
       if position>0:
         #We are above lower boundary, so can extend down
         self.whiteConstraints[line][position-1]=1
@@ -236,6 +236,57 @@ class Grid:
       if position<self.maxrowid-length+1:
         # If below high edge, extend up
         self.whiteConstraints[line][position+length]=1
+
+  def walkFromBoundary(self,direction,line):
+    if direction:
+      whiteConstraints=np.transpose(self.whiteConstraints)
+      blackConstraints=np.transpose(self.blackConstraints)
+    else:
+      whiteConstraints=self.whiteConstraints
+      blackConstraints=self.blackConstraints
+
+
+    startpos=-1
+    blockno=0
+    backAgainstBoundary=1
+
+    for walker in range(0,len(whiteConstraints[0])):
+
+      if whiteConstraints[line][walker]:
+        # Good. First blob is a white constraint
+        backAgainstBoundary=1
+        continue
+
+      # With white constraint, we never get this far. So it is either back or blank
+
+      if blackConstraints[line][walker]==1:
+        # this is a black blob
+        # Test if we are on a ongoing block or at the start of a new one
+
+        if backAgainstBoundary:
+          # This must be the first block of the row. Next one can't
+          backAgainstBoundary=0
+          startpos=walker
+
+          # We can freeze this block!
+          if (direction>0):
+            self.freezeBlock(direction,line,startpos,self.blockcols.K[line][blockno])
+          else:
+            self.freezeBlock(direction,line,startpos,self.blockrows.K[line][blockno])
+          blockno=blockno+1
+
+        else:
+          # existing ongoing blob... Back still against something
+          continue
+
+      else:
+        # It's hopeless Mr Frodo. We are lost. Our back is not against boundary and we have got an empty blob
+        # One last change... If there has been a black start block and
+        # and more blocks within the lenght, we might be still ok.
+#          if (walker-startpos)<self.blockcols.K[blockno]:
+        break
+
+
 
 
   def printgrid(self):
