@@ -259,14 +259,19 @@ class Grid:
         # If below high edge, extend up
         self.whiteConstraints[line][position+length]=1
 
-  def walkFromBoundary(self,direction,line):
+  def walkFromBoundary(self,direction,line,reverse=0):
     if (direction>0):
       whiteConstraints=np.transpose(self.whiteConstraints)
       blackConstraints=np.transpose(self.blackConstraints)
+      if (reverse>0):
+        whiteConstraints=np.flipud(np.transpose(self.whiteConstraints))
+        blackConstraints=np.flipud(np.transpose(self.blackConstraints))
     else:
       whiteConstraints=self.whiteConstraints
       blackConstraints=self.blackConstraints
-
+      if (reverse>0):
+        whiteConstraints=np.fliplr(np.transpose(self.whiteConstraints))
+        blackConstraints=np.fliplr(np.transpose(self.blackConstraints))
 
     startpos=-1
     blockno=0
@@ -377,6 +382,13 @@ class Graphics(threading.Thread):
       self.canvas.create_line(i*self.scale+self.offset, 0*self.scale+self.offset, i*self.scale+self.offset, 250*self.scale+self.offset, fill="grey")
       self.canvas.create_line(0*self.scale+self.offset, i*self.scale+self.offset, 250*self.scale+self.offset, i*self.scale+self.offset, fill="grey")
 
+    self.gridBlobs=np.empty([25,25])
+    for row in range(0,25):
+      for col in range(0,25):
+        self.gridBlobs[row][col]=self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*row)*self.scale+self.offset,
+                                 (10+10*col)*self.scale+self.offset, (10+10*row)*self.scale+self.offset,fill='grey')
+
+
     self.root.mainloop()
 
   def test(self):
@@ -387,7 +399,10 @@ class Graphics(threading.Thread):
     self.canvas.create_rectangle(125,  25, 175, 190, fill="purple", width=0)
 
   def lightBlock(self,line,col,colour):
-    self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*line)*self.scale+self.offset, (10+10*col)*self.scale+self.offset, (10+10*line)*self.scale+self.offset,fill=colour)
+    #self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*line)*self.scale+self.offset,
+    #                             (10+10*col)*self.scale+self.offset, (10+10*line)*self.scale+self.offset,fill=colour)
+    #self.canvas.itemconfig(self.gridBlobs[line][col], fill=colour)
+    pass
 
   def drawBlockFreedom(self,linemin,linemax,colmin,colmax,no=3,color='yellow'):
     self.canvas.create_line((no*1.5+10*colmin)*self.scale+self.offset,(0+10*linemin)*self.scale+self.offset,

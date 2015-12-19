@@ -153,7 +153,7 @@ UI.showGrid()
 #time.sleep(1)
 #grid.freezeBlock(0,6,7,blockrows.K[6][0])
 
-for i in range(0,5):
+for i in range(0,50):
   print "ROUND %s" % i
   rowinduction()
 #  UI.showGrid()
