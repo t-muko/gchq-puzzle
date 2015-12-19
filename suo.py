@@ -153,7 +153,7 @@ UI.showGrid()
 #time.sleep(1)
 #grid.freezeBlock(0,6,7,blockrows.K[6][0])
 
-for i in range(0,50):
+for i in range(0,5):
   print "ROUND %s" % i
   rowinduction()
 #  UI.showGrid()
@@ -162,9 +162,11 @@ for i in range(0,50):
 
   for line in range(0,25):
     grid.walkFromBoundary(0,line)
+    grid.whiteBridge(0,line)
   UI.showGrid()
   for line in range(0,25):
     grid.walkFromBoundary(1,line)
+    grid.whiteBridge(1,line)
   UI.showGrid()
   blockcols.checkBlockChain()
   UI.showGrid()

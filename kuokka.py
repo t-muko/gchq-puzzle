@@ -233,6 +233,24 @@ class Grid:
     else:
       self.blackConstraints[line]=np.logical_or(self.blackConstraints[line],commonBlobs)
 
+  def whiteBridge(self,direction,line):
+    if (direction>0):
+      # Working on columns
+      possiblepos=self.blockrows.possibleRowPos[line]
+      K=self.blockrows.K[line]
+    else:
+      possiblepos=self.blockcols.possibleRowPos[line]
+      K=self.blockcols.K[line]
+
+    for blockidx in range(0,len(possiblepos)-1):
+      # set white constraints on every square in between end of previous block on its maximum position and
+      # next block on its minimum position
+      for whiteBlob in range(max(possiblepos[blockidx])+K[blockidx],
+                             min(possiblepos[blockidx+1])):
+        if (direction>0):
+          self.whiteConstraints[line][whiteBlob]=1
+        else:
+          self.whiteConstraints[whiteBlob][line]=1
 
   def freezeBlock(self,direction,line,position,length):
     # set black blobs and Extend the block to both directions unless we are just in the edge and enter white constraints
@@ -406,8 +424,13 @@ class Graphics(threading.Thread):
 
 
   def drawBlockFreedom(self,linemin,linemax,colmin,colmax,no=3,color='yellow'):
-    self.canvas.create_line((no*1.5+10*colmin)*self.scale+self.offset,(0+10*linemin)*self.scale+self.offset,
-                            (no*1.5+10*colmax)*self.scale+self.offset, (0+10*linemax)*self.scale+self.offset,fill=color,arrow=tk.BOTH)
+    if (linemin==linemax):
+      self.canvas.create_line((0+10*colmin)*self.scale+self.offset,(no*1.5+10*linemin)*self.scale+self.offset,
+                            (0+10*colmax)*self.scale+self.offset, (no*1.5+10*linemax)*self.scale+self.offset,fill=color,arrow=tk.BOTH,tag='arrow')
+    else:
+      self.canvas.create_line((no*1.5+10*colmin)*self.scale+self.offset,(0+10*linemin)*self.scale+self.offset,
+                            (no*1.5+10*colmax)*self.scale+self.offset, (0+10*linemax)*self.scale+self.offset,fill=color,arrow=tk.BOTH,tag='arrow')
+
 
   def showGrid(self):
     #self.canvas.create_rectangle(100,  50, 250, 100, fill="orange", width=5)
