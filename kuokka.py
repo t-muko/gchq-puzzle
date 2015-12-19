@@ -361,6 +361,7 @@ class Graphics(threading.Thread):
     self.start()
     self.scale=2
     self.offset=140
+    self.gridBlobs=np.zeros([25,25],dtype='int')
 
   def callback(self):
     self.root.quit()
@@ -382,10 +383,10 @@ class Graphics(threading.Thread):
       self.canvas.create_line(i*self.scale+self.offset, 0*self.scale+self.offset, i*self.scale+self.offset, 250*self.scale+self.offset, fill="grey")
       self.canvas.create_line(0*self.scale+self.offset, i*self.scale+self.offset, 250*self.scale+self.offset, i*self.scale+self.offset, fill="grey")
 
-    self.gridBlobs=np.empty([25,25])
+
     for row in range(0,25):
       for col in range(0,25):
-        self.gridBlobs[row][col]=self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*row)*self.scale+self.offset,
+        self.gridBlobs[row][col]=self.foo=self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*row)*self.scale+self.offset,
                                  (10+10*col)*self.scale+self.offset, (10+10*row)*self.scale+self.offset,fill='grey')
 
 
@@ -401,8 +402,8 @@ class Graphics(threading.Thread):
   def lightBlock(self,line,col,colour):
     #self.canvas.create_rectangle(  (0+10*col)*self.scale+self.offset,(0+10*line)*self.scale+self.offset,
     #                             (10+10*col)*self.scale+self.offset, (10+10*line)*self.scale+self.offset,fill=colour)
-    #self.canvas.itemconfig(self.gridBlobs[line][col], fill=colour)
-    pass
+    self.canvas.itemconfig(self.gridBlobs[line][col], fill=colour)
+
 
   def drawBlockFreedom(self,linemin,linemax,colmin,colmax,no=3,color='yellow'):
     self.canvas.create_line((no*1.5+10*colmin)*self.scale+self.offset,(0+10*linemin)*self.scale+self.offset,
