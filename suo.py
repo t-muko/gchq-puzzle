@@ -48,7 +48,7 @@ T=[[7,2,1,1,7],
    [1,3,1,3,1,3,1,3,1],
    [1,3,1,1,5,1,3,1],
    [1,3,1,1,4,1,3,1],
-   [1,1,1,3,1,1],
+   [1,1,1,2,1,1],
    [7,1,1,1,1,1,7],
    [1,1,3],
    [2,1,2,1,8,2,1],
@@ -101,10 +101,19 @@ time.sleep(2)
 #print blockrows.possibleRowPos[0][0]
 
 def rowinduction():
+  global ROUND
+  # Check each line
   for lineidx, line in enumerate(blockrows.possibleRowPos):
+    # Check each block on line
     for blockidx,block in enumerate(line):
+      if (len(blockrows.possibleRowPos[lineidx][blockidx])==1) & (ROUND>0):
+        # This is already a frozen block. Continue to next block.
+        continue
+
+      # More than one possibility. Check if we can shorten the list.
       grid.setCommonBlobs(0,lineidx,block,blockrows.K[lineidx][blockidx])
-      #UI.showGrid()
+
+      #create a new temporary array to list still possible positions
       stillpossible=array.array('i')
       for posidx,position in enumerate(block):
 
@@ -119,17 +128,22 @@ def rowinduction():
 #        print "after"
 #        print blockrows.possibleRowPos[lineidx][blockidx]
 
-      # if we have got only one possible position left, the block can be freezed
-      if len(stillpossible)==1:
+      # if we now have got only one possible position left, the block can be freezed
+      if (len(stillpossible)==1):
         lastpos=blockrows.possibleRowPos[lineidx][blockidx]
         #print "last position: %s" % lastpos
-        print "Induction freezing Row %s, position %s, lenght %s" % (lineidx,lastpos[0],blockrows.K[lineidx][blockidx])
-        grid.freezeBlock(0,lineidx,lastpos[0],blockrows.K[lineidx][blockidx])
+        print "Induction freezing Row %s, position %s, block %s" % (lineidx,lastpos[0],blockidx)
+        grid.freezeBlock(0,lineidx,blockidx,lastpos[0])
 
 def colinduction():
+  global ROUND
   for lineidx, line in enumerate(blockcols.possibleRowPos):
     for blockidx,block in enumerate(line):
       grid.setCommonBlobs(1,lineidx,block,blockcols.K[lineidx][blockidx])
+
+      if (len(blockcols.possibleRowPos[lineidx][blockidx])==1) & (ROUND>0):
+        # This is already a frozen block. Continue to next block.
+        continue
 
       stillpossible=array.array('i')
       for posidx,position in enumerate(block):
@@ -146,14 +160,15 @@ def colinduction():
       if len(stillpossible)==1:
         lastpos=blockcols.possibleRowPos[lineidx][blockidx]
         #print "last position: %s" % lastpos
-        print "Induction freezing Col %s, position %s, lenght %s" % (lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
-        grid.freezeBlock(1,lineidx,lastpos[0],blockcols.K[lineidx][blockidx])
+        print "Induction freezing Col %s, position %s, block %s" % (lineidx,lastpos[0],blockidx)
+        grid.freezeBlock(1,lineidx,blockidx,lastpos[0])
 
 UI.showGrid()
 #time.sleep(1)
-#grid.freezeBlock(0,6,7,blockrows.K[6][0])
 
-for i in range(0,5):
+global ROUND
+for i in range(0,25):
+  ROUND = i
   print "ROUND %s" % i
   rowinduction()
 #  UI.showGrid()
@@ -168,6 +183,7 @@ for i in range(0,5):
     grid.walkFromBoundary(1,line)
     grid.whiteBridge(1,line)
   UI.showGrid()
+
   blockcols.checkBlockChain()
   UI.showGrid()
   blockrows.checkBlockChain()

@@ -93,6 +93,7 @@ class Positio:
       self.kerroin[row][palikka]=self.minpositio(row,palikka)
 
   def checkBlockChain(self):
+    # Make sure that min position of a block does not overlap with min position of the previous block.
 
     for line in range(0,len(self.possibleRowPos)):
       for blockidx in range(1,len(self.possibleRowPos[line])):
@@ -103,7 +104,7 @@ class Positio:
         #print "after up run %s" % self.possibleRowPos[line][blockidx]
 
     for line in range(0,len(self.possibleRowPos)):
-      print "line %s" % line,
+      #print "line %s" % line,
       for blockidx in range((len(self.possibleRowPos[line])-2),0-1,-1):
         #print "before down run %s" % self.possibleRowPos[line][blockidx]
         self.possibleRowPos[line][blockidx]=[i for i in self.possibleRowPos[line][blockidx] if
@@ -236,11 +237,12 @@ class Grid:
   def whiteBridge(self,direction,line):
     if (direction>0):
       # Working on columns
-      possiblepos=self.blockrows.possibleRowPos[line]
-      K=self.blockrows.K[line]
-    else:
       possiblepos=self.blockcols.possibleRowPos[line]
       K=self.blockcols.K[line]
+    else:
+      # working on rows
+      possiblepos=self.blockrows.possibleRowPos[line]
+      K=self.blockrows.K[line]
 
     for blockidx in range(0,len(possiblepos)-1):
       # set white constraints on every square in between end of previous block on its maximum position and
@@ -248,15 +250,18 @@ class Grid:
       for whiteBlob in range(max(possiblepos[blockidx])+K[blockidx],
                              min(possiblepos[blockidx+1])):
         if (direction>0):
-          self.whiteConstraints[line][whiteBlob]=1
-        else:
           self.whiteConstraints[whiteBlob][line]=1
+        else:
+          self.whiteConstraints[line][whiteBlob]=1
 
-  def freezeBlock(self,direction,line,position,length):
-    # set black blobs and Extend the block to both directions unless we are just in the edge and enter white constraints
-    self.setCommonBlobs(direction,line,[position],length)
+  def freezeBlock(self,direction,line,blockno,position):
+
+    #Extend the block with white constraints to both directions unless we are just in the edge
     if (direction>0):
       # Working on columns
+      length=self.blockcols.K[line][blockno]
+      # Only one position left
+      self.blockcols.possibleRowPos[line][blockno]=[position]
       #print "Freezing columns..."
       if position>0:
         #We are above lower boundary, so can extend down
@@ -268,6 +273,9 @@ class Grid:
 
     else:
       # Working on rows
+      length=self.blockrows.K[line][blockno]
+      # Only one position left
+      self.blockrows.possibleRowPos[line][blockno]=[position]
       #print "Freezing rows..."
       if position>0:
         #We are above lower boundary, so can extend down
@@ -277,7 +285,18 @@ class Grid:
         # If below high edge, extend up
         self.whiteConstraints[line][position+length]=1
 
+    # set black blobs for the block
+    self.setCommonBlobs(direction,line,[position],length)
+
+
   def walkFromBoundary(self,direction,line,reverse=0):
+    # We need a state machine.
+    # State 0: We are against the boundary AND we know our block. White block maintains this state.
+    # State 1: We have got an ongoing black blob, we know our block and we do have hard boundary behind.
+    # Another black dot maintains this state. We can set the block when getting into this state.
+    # State 2: We have got e white blob after state 1. This is an end of a known block.
+    # State 3: We have got an empty blob. Still within lenght of a block from the last hard boundary.
+    # State $:
     if (direction>0):
       whiteConstraints=np.transpose(self.whiteConstraints)
       blackConstraints=np.transpose(self.blackConstraints)
@@ -291,42 +310,64 @@ class Grid:
         whiteConstraints=np.fliplr(np.transpose(self.whiteConstraints))
         blackConstraints=np.fliplr(np.transpose(self.blackConstraints))
 
-    startpos=-1
+    hardStartPos=0
     blockno=0
-    backAgainstBoundary=1
+    backAgainstBoundary=True
+    walkingInThedark=False
+    partialBlockBits=[]
 
     for walker in range(0,len(whiteConstraints[0])):
 
       if whiteConstraints[line][walker]:
-        # Good. First blob is a white constraint
-        backAgainstBoundary=1
-        startpos=walker+1
+        if walkingInThedark:
+          if walker-hardStartPos==self.blockcols.K[line][blockno]:
+            # This must be part of assumed current block located between white blobs.
+            # we can freeze this!
+            pass
+
+        else:
+          # we haven't walked in the dark. Just pass
+          pass
+
+        # Good. Blob is a white constraint
+        backAgainstBoundary=True
+        hardStartPos=walker+1
+        walkingInThedark=False
         continue
+
+
 
       # With white constraint, we never get this far. So it is either back or blank
 
-      if blackConstraints[line][walker]==1:
+      if (blackConstraints[line][walker]==1) & (walkingInThedark==False):
         # this is a black blob
         # Test if we are on a ongoing block or at the start of a new one
 
-        if backAgainstBoundary:
-          # This must be the first blob of the block. Next one can't
-          backAgainstBoundary=0
-          startpos=walker
+        if backAgainstBoundary & (hardStartPos==walker):
+          # This must be the first blob of the block after hard boundary. Next one can't
+          backAgainstBoundary=False
 
           # We can freeze this block!
           if (direction>0):
-            print "Walker freezing dir %s line %s, block no %s," % (direction,line,blockno)
-            self.freezeBlock(direction,line,startpos,self.blockcols.K[line][blockno])
+            if (len(self.blockcols.possibleRowPos[line][blockno])>1):
+              # This is block has not been frozen yet. Freeze now.
+              print "Walker freezing COLUMN line %s, block no %s at position %s," % (line,blockno, walker)
+              print "Possible positions: %s" % self.blockcols.possibleRowPos[line][blockno]
+              self.freezeBlock(direction,line,blockno,walker)
             # read constraints again
             whiteConstraints=np.transpose(self.whiteConstraints)
             blackConstraints=np.transpose(self.blackConstraints)
+            backAgainstBoundary=0 # We could be anywhere after freezing the block.
           else:
-            print "Walker freezing dir %s line %s, block no %s," % (direction,line,blockno)
-            self.freezeBlock(direction,line,startpos,self.blockrows.K[line][blockno])
+            if (len(self.blockrows.possibleRowPos[line][blockno])>1):
+              # This is block has not been frozen yet. Freeze now.
+              print "Walker freezing ROW line %s, block no %s at position %s," % (line,blockno,walker)
+              print "Possible positions: %s" % self.blockrows.possibleRowPos[line][blockno]
+              self.freezeBlock(direction,line,blockno,walker)
             # read constraints again
             whiteConstraints=self.whiteConstraints
             blackConstraints=self.blackConstraints
+            backAgainstBoundary=0 # We could be anywhere after freezing the block.
 
           blockno=blockno+1
 
@@ -338,10 +379,24 @@ class Grid:
           continue
 
       else:
-        # It's hopeless Mr Frodo. We are lost. Our back is not against boundary and we have got an empty blob
-        # One last change... If there has been a black start block and
-        # and more blocks within the lenght, we might be still ok.
-#          if (walker-startpos)<self.blockcols.K[blockno]:
+
+        # It's hopeless Mr Frodo. We are lost. We have got an empty block or even more...
+        # One last change... We can try to walk in the dark until we find a black block before our current
+        # block runs out. If it does, we loose count of blocks and abort (break)
+        walkingInThedark=True
+        if walker-hardStartPos>1:
+          # this is our second step
+          backAgainstBoundary=False
+
+
+        # Still good. Hoping for a black blob
+        if (blackConstraints[line][walker]==1):
+          # bingo! We have got a black blob. No idea if this is belonging to the current block. Test that next.
+          # Store the position anyway.
+          partialBlockBits.append(walker)
+
+
+
         break
 
 
