@@ -288,6 +288,52 @@ class Grid:
     # set black blobs for the block
     self.setCommonBlobs(direction,line,[position],length)
 
+  def vampireSlayer(self,direction,line,reverse=0):
+    pass
+    # Find a white-black transition, which must mark a start of a block. Try to identify this block
+    # based on possible starting points. If it is possible for only one block, this must be our vampire.
+    # Eliminate it
+    if (direction>0):
+      whiteConstraints=np.transpose(self.whiteConstraints)
+      blackConstraints=np.transpose(self.blackConstraints)
+      blocklines=self.blockcols
+      if (reverse>0):
+        whiteConstraints=np.flipud(np.transpose(self.whiteConstraints))
+        blackConstraints=np.flipud(np.transpose(self.blackConstraints))
+    else:
+      whiteConstraints=self.whiteConstraints
+      blackConstraints=self.blackConstraints
+      blocklines=self.blockrows
+      if (reverse>0):
+        whiteConstraints=np.fliplr(np.transpose(self.whiteConstraints))
+        blackConstraints=np.fliplr(np.transpose(self.blackConstraints))
+
+    # start from the edge of the grid i.e. "white"
+    previousBlobIsWhite=1
+
+    # Buffy checks all blobs
+    for buffy in range(0,len(whiteConstraints[0])):
+      if previousBlobIsWhite & blackConstraints[line][buffy]:
+        # Transition point. This may be a vampire! Try to identify him
+        # check how many blocks have got this as starting point. If only one, this must be it!
+        pass
+        blocksWithVampire=[]
+
+        # Check how many blocks have been seen here. Store those block numbers in an array
+        for blockno,startPointArray in enumerate(blocklines.possibleRowPos[line]):
+          if buffy in startPointArray:
+            # Buffy found a vampire on this block
+            blocksWithVampire.append(blockno)
+
+        if (len(blocksWithVampire)==1):
+          # Only one vampire found. Slay him, unless he is already dead
+          if (len(blocklines.possibleRowPos[line][blocksWithVampire[0]])>1):
+            print "Buffy slaying a vampire in dir %s, line %s, block %s, position %s" % (direction,line,blocksWithVampire[0],buffy)
+            print blocklines.possibleRowPos[line][blocksWithVampire[0]]
+            self.freezeBlock(direction,line,blocksWithVampire[0],buffy)
+
+      # Store the current white blob for the next round
+      previousBlobIsWhite=whiteConstraints[line][buffy]
 
   def walkFromBoundary(self,direction,line,reverse=0):
     # We need a state machine.

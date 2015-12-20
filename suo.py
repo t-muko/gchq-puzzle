@@ -178,10 +178,12 @@ for i in range(0,25):
   for line in range(0,25):
     grid.walkFromBoundary(0,line)
     grid.whiteBridge(0,line)
+    grid.vampireSlayer(0,line)
   UI.showGrid()
   for line in range(0,25):
     grid.walkFromBoundary(1,line)
     grid.whiteBridge(1,line)
+    grid.vampireSlayer(1,line)
   UI.showGrid()
 
   blockcols.checkBlockChain()
