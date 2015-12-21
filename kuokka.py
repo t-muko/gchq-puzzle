@@ -289,24 +289,25 @@ class Grid:
     self.setCommonBlobs(direction,line,[position],length)
 
   def vampireSlayer(self,direction,line,reverse=0):
-    pass
     # Find a white-black transition, which must mark a start of a block. Try to identify this block
     # based on possible starting points. If it is possible for only one block, this must be our vampire.
     # Eliminate it
     if (direction>0):
+      # working on columns
       whiteConstraints=np.transpose(self.whiteConstraints)
       blackConstraints=np.transpose(self.blackConstraints)
       blocklines=self.blockcols
       if (reverse>0):
-        whiteConstraints=np.flipud(np.transpose(self.whiteConstraints))
-        blackConstraints=np.flipud(np.transpose(self.blackConstraints))
+        whiteConstraints=np.fliplr(np.transpose(self.whiteConstraints))
+        blackConstraints=np.fliplr(np.transpose(self.blackConstraints))
     else:
+      # working on rows
       whiteConstraints=self.whiteConstraints
       blackConstraints=self.blackConstraints
       blocklines=self.blockrows
       if (reverse>0):
-        whiteConstraints=np.fliplr(np.transpose(self.whiteConstraints))
-        blackConstraints=np.fliplr(np.transpose(self.blackConstraints))
+        whiteConstraints=np.fliplr(self.whiteConstraints)
+        blackConstraints=np.fliplr(self.blackConstraints)
 
     # start from the edge of the grid i.e. "white"
     previousBlobIsWhite=1
@@ -316,21 +317,41 @@ class Grid:
       if previousBlobIsWhite & blackConstraints[line][buffy]:
         # Transition point. This may be a vampire! Try to identify him
         # check how many blocks have got this as starting point. If only one, this must be it!
-        pass
+
         blocksWithVampire=[]
 
-        # Check how many blocks have been seen here. Store those block numbers in an array
-        for blockno,startPointArray in enumerate(blocklines.possibleRowPos[line]):
-          if buffy in startPointArray:
-            # Buffy found a vampire on this block
-            blocksWithVampire.append(blockno)
+        if (reverse>0):
+          # Buffy is walking backwards. We are at the end point of possible block.
+
+          realEndPoint=len(whiteConstraints[0])-1-buffy
+          print "reversebuffy %s, realEndPoint %s" % (buffy, realEndPoint)
+          print blackConstraints[line].astype(int)
+          print whiteConstraints[line].astype(int)
+          for blockno,startPointArray in enumerate(blocklines.possibleRowPos[line]):
+            if (realEndPoint-blocklines.K[line][blockno]+1) in startPointArray:
+              # Buffy found a vampire on this block
+              blocksWithVampire.append(blockno)
+
+        else:
+          # normal direction
+          realStartingPoint=buffy
+          # Check how many blocks have been seen staring from here. Store those block numbers in an array
+          for blockno,startPointArray in enumerate(blocklines.possibleRowPos[line]):
+            if realStartingPoint in startPointArray:
+              # Buffy found a vampire on this block
+              blocksWithVampire.append(blockno)
 
         if (len(blocksWithVampire)==1):
           # Only one vampire found. Slay him, unless he is already dead
           if (len(blocklines.possibleRowPos[line][blocksWithVampire[0]])>1):
-            print "Buffy slaying a vampire in dir %s, line %s, block %s, position %s" % (direction,line,blocksWithVampire[0],buffy)
+            if (reverse>0):
+              realStartingPoint=realEndPoint-blocklines.K[line][blocksWithVampire[0]]+1
+
+            print blocksWithVampire
             print blocklines.possibleRowPos[line][blocksWithVampire[0]]
-            self.freezeBlock(direction,line,blocksWithVampire[0],buffy)
+            print "Buffy slaying a vampire in dir %s, line %s, block %s, position %s, rev %s" % (direction,line,blocksWithVampire[0],realStartingPoint,reverse)
+            #print blocklines.possibleRowPos[line][blocksWithVampire[0]]
+            self.freezeBlock(direction,line,blocksWithVampire[0],realStartingPoint-blocklines.K[line][blocksWithVampire[0]]+1)
 
       # Store the current white blob for the next round
       previousBlobIsWhite=whiteConstraints[line][buffy]

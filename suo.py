@@ -3,6 +3,7 @@ import array
 from timeit import default_timer as timer
 import numpy as np
 import time
+#import ipdb; ipdb.set_trace()
 
 #from kuokka import positio
 #import numpy as np
@@ -96,7 +97,7 @@ grid=kuokka.Grid(blockrows,blockcols)
 #grid.freezeBlock(0,3,2,3)
 #grid.setCommonBlobs(0,0,[0,1,2],7)
 UI=kuokka.Graphics(grid)
-time.sleep(2)
+time.sleep(1)
 #grid.printgrid()
 #print blockrows.possibleRowPos[0][0]
 
@@ -176,20 +177,30 @@ for i in range(0,25):
   UI.showGrid()
 
   for line in range(0,25):
-    grid.walkFromBoundary(0,line)
+    #grid.walkFromBoundary(0,line)
+    #UI.showGrid()
     grid.whiteBridge(0,line)
+    UI.showGrid()
     grid.vampireSlayer(0,line)
+    #UI.showGrid()
+    grid.vampireSlayer(0,line,1)
+    UI.showGrid()
   UI.showGrid()
   for line in range(0,25):
-    grid.walkFromBoundary(1,line)
+    #grid.walkFromBoundary(1,line)
+    #UI.showGrid()
     grid.whiteBridge(1,line)
+    UI.showGrid()
     grid.vampireSlayer(1,line)
+    #UI.showGrid()
+    grid.vampireSlayer(1,line,1)
+    UI.showGrid()
   UI.showGrid()
 
-  blockcols.checkBlockChain()
-  UI.showGrid()
-  blockrows.checkBlockChain()
-  UI.showGrid()
+  #blockcols.checkBlockChain()
+  #UI.showGrid()
+  #blockrows.checkBlockChain()
+  #UI.showGrid()
   #grid.printgrid()
 #  blockrows.printFreedoms('row','no')
 #  blockcols.printFreedoms('Col','no')
