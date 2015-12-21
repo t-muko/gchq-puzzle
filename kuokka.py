@@ -351,7 +351,7 @@ class Grid:
             print blocklines.possibleRowPos[line][blocksWithVampire[0]]
             print "Buffy slaying a vampire in dir %s, line %s, block %s, position %s, rev %s" % (direction,line,blocksWithVampire[0],realStartingPoint,reverse)
             #print blocklines.possibleRowPos[line][blocksWithVampire[0]]
-            self.freezeBlock(direction,line,blocksWithVampire[0],realStartingPoint-blocklines.K[line][blocksWithVampire[0]]+1)
+            self.freezeBlock(direction,line,blocksWithVampire[0],realStartingPoint)
 
       # Store the current white blob for the next round
       previousBlobIsWhite=whiteConstraints[line][buffy]
