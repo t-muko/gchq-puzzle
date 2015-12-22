@@ -81,10 +81,11 @@ class TestGrid(unittest.TestCase):
 
 class testBuffy(TestGrid):
   def printLine(self,line):
+
     print unittest.TestCase.id(self)
-    print "Whites %s " % self._grid.whiteConstraints[0].astype(int)
-    print "Blacks %s " % self._grid.blackConstraints[0].astype(int)
-    print "possibleRowPos %s" % self._grid.blockrows.possibleRowPos[0][1]
+    print "Whites %s " % self._grid.whiteConstraints[line].astype(int)
+    print "Blacks %s " % self._grid.blackConstraints[line].astype(int)
+#    print "possibleRowPos %s" % self._grid.blockrows.possibleRowPos[line][1]
     print
 
   def test_common_blobs(self):
@@ -98,11 +99,55 @@ class testBuffy(TestGrid):
 
     #self.UI.showGrid()
 
-  def test_buffy_one_forward_transition_at_3(self):
+  def test_buffy_one_forward_transition_at_9(self):
+    self._grid.whiteConstraints[0][8]=1
+    self._grid.blackConstraints[0][9]=1
     self._grid=self._grid
     self.printLine(0)
     self._grid.vampireSlayer(0,0)
     self.printLine(0)
+
+  def test_buffy_one_backward_transition_at_7(self):
+    self._grid.whiteConstraints[0][8]=1
+    self._grid.blackConstraints[0][7]=1
+    self._grid=self._grid
+    self.printLine(0)
+    self._grid.vampireSlayer(0,0,1)
+    self.printLine(0)
+
+  def test_buffy_one_backward_transition_at_edge(self):
+    self._grid.whiteConstraints[0][7]=1
+    self._grid.blackConstraints[0][6]=1
+    self._grid=self._grid
+    self.printLine(0)
+    self._grid.vampireSlayer(0,0,1)
+    self.printLine(0)
+
+  def test_bountyhunter_2nd_blob(self):
+    #self._grid.whiteConstraints[0][8]=1
+    self._grid.blackConstraints[9][1]=1
+    self._grid=self._grid
+    self.printLine(9)
+    self._grid.bountyHunter(0,9)
+    self.printLine(9)
+
+  def test_bountyhunter_3rd_two_blob(self):
+    self._grid.blackConstraints[12][2]=1
+    self._grid.blackConstraints[12][3]=1
+    self._grid=self._grid
+    self.printLine(12)
+    self._grid.bountyHunter(0,12)
+    print self._grid.blockrows.possibleRowPos[12][0]
+    self.printLine(12)
+
+  def test_bountyhunter_4th_two_blob(self):
+    self._grid.blackConstraints[12][3]=1
+    self._grid.blackConstraints[12][4]=1
+    self._grid=self._grid
+    self.printLine(12)
+    self._grid.bountyHunter(0,12)
+    print self._grid.blockrows.possibleRowPos[12][0]
+    self.printLine(12)
 
   def test_whiteBridge(self):
     self._grid.whiteBridge(0,0)

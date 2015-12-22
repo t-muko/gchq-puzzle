@@ -288,6 +288,77 @@ class Grid:
     # set black blobs for the block
     self.setCommonBlobs(direction,line,[position],length)
 
+  def bountyHunter(self,direction,line,reverse=0):
+    # Find a black dot and try to identify if it is our next block.
+    # We can walk in the dark until we loose track of our block.
+    if (direction>0):
+      # working on columns
+      whiteConstraints=np.transpose(self.whiteConstraints)
+      blackConstraints=np.transpose(self.blackConstraints)
+      blocklines=self.blockcols
+      if (reverse>0):
+        whiteConstraints=np.fliplr(np.transpose(self.whiteConstraints))
+        blackConstraints=np.fliplr(np.transpose(self.blackConstraints))
+    else:
+      # working on rows
+      whiteConstraints=self.whiteConstraints
+      blackConstraints=self.blackConstraints
+      blocklines=self.blockrows
+      if (reverse>0):
+        whiteConstraints=np.fliplr(self.whiteConstraints)
+        blackConstraints=np.fliplr(self.blackConstraints)
+    # start from the edge of the grid i.e. "white"
+    previousBlobIsWhite=1
+    stepsSinceWhite=0
+    currentBlock=0
+
+    for bountyhunter in range(0,len(whiteConstraints[0])):
+
+      if (stepsSinceWhite>(blocklines.K[line][currentBlock]+2)):
+        # Its too far from known position
+        print 'bountyhunter is lost'
+        break
+
+      if blackConstraints[line][bountyhunter]:
+        # we found a black blob. This must be a part of our block. Try to match it with other blobs
+        # from the block
+
+
+        if (len(blocklines.possibleRowPos[line][currentBlock])==1):
+          # This is already a frozen block. Continue to next block.
+          continue
+
+        #create a new temporary array to list still possible positions
+        stillpossible=array.array('i')
+        for posidx,position in enumerate(blocklines.possibleRowPos[line][currentBlock]):
+
+          # if position has common blobs with the found blob
+          # Is so, add it to the new possible position array
+          if np.any(np.logical_and(self.posLenToBinArray(position,blocklines.K[line][currentBlock]),
+                                   self.posLenToBinArray(bountyhunter,1))):
+            stillpossible.append(position)
+
+          blocklines.possibleRowPos[line][currentBlock]=stillpossible
+
+        # if we now have got only one possible position left, the block can be frozen!
+        if (len(stillpossible)==1):
+          lastpos=blocklines.possibleRowPos[line][currentBlock]
+          print "Bounty hunter freezing Dir %s line %s, position %s, block %s" % (direction,
+                                                                                  line,bountyhunter,
+                                                                                  currentBlock)
+          self.freezeBlock(direction,line,currentBlock,stillpossible[0])
+
+      if previousBlobIsWhite:
+        stepsSinceWhite=stepsSinceWhite+1
+
+      if (bountyhunter>0):
+        previousBlobIsWhite=whiteConstraints[line][bountyhunter-1]
+
+
+
+
+
+
   def vampireSlayer(self,direction,line,reverse=0):
     # Find a white-black transition, which must mark a start of a block. Try to identify this block
     # based on possible starting points. If it is possible for only one block, this must be our vampire.
@@ -324,9 +395,9 @@ class Grid:
           # Buffy is walking backwards. We are at the end point of possible block.
 
           realEndPoint=len(whiteConstraints[0])-1-buffy
-          print "reversebuffy %s, realEndPoint %s" % (buffy, realEndPoint)
-          print blackConstraints[line].astype(int)
-          print whiteConstraints[line].astype(int)
+          #print "reversebuffy %s, realEndPoint %s" % (buffy, realEndPoint)
+          #print blackConstraints[line].astype(int)
+          #print whiteConstraints[line].astype(int)
           for blockno,startPointArray in enumerate(blocklines.possibleRowPos[line]):
             if (realEndPoint-blocklines.K[line][blockno]+1) in startPointArray:
               # Buffy found a vampire on this block

@@ -177,7 +177,7 @@ for i in range(0,25):
   UI.showGrid()
 
   for line in range(0,25):
-    #grid.walkFromBoundary(0,line)
+    grid.walkFromBoundary(0,line)
     #UI.showGrid()
     grid.whiteBridge(0,line)
     UI.showGrid()
@@ -187,7 +187,7 @@ for i in range(0,25):
     UI.showGrid()
   UI.showGrid()
   for line in range(0,25):
-    #grid.walkFromBoundary(1,line)
+    grid.walkFromBoundary(1,line)
     #UI.showGrid()
     grid.whiteBridge(1,line)
     UI.showGrid()
