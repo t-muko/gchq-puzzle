@@ -254,6 +254,22 @@ class Grid:
         else:
           self.whiteConstraints[line][whiteBlob]=1
 
+    # do the same for areas between the block and the wall
+    for whiteBlob in range(0, min(possiblepos[0])):
+      if (direction>0):
+        self.whiteConstraints[whiteBlob][line]=1
+      else:
+        self.whiteConstraints[line][whiteBlob]=1
+
+    # do the same for areas between the block and the wall
+    # TODO: hard coded grid dimensions
+    for whiteBlob in range(max(possiblepos[len(K)-1])+K[len(K)-1],25):
+      if (direction>0):
+        self.whiteConstraints[whiteBlob][line]=1
+      else:
+        self.whiteConstraints[line][whiteBlob]=1
+
+
   def freezeBlock(self,direction,line,blockno,position):
 
     #Extend the block with white constraints to both directions unless we are just in the edge
