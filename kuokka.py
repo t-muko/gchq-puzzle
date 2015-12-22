@@ -307,52 +307,52 @@ class Grid:
       if (reverse>0):
         whiteConstraints=np.fliplr(self.whiteConstraints)
         blackConstraints=np.fliplr(self.blackConstraints)
-    # start from the edge of the grid i.e. "white"
-    previousBlobIsWhite=1
-    stepsSinceWhite=0
-    currentBlock=0
 
-    for bountyhunter in range(0,len(whiteConstraints[0])):
+    for blockno, possibles in enumerate(blocklines.possibleRowPos[line]):
+      if (len(possibles)==1):
+        #already frozen. Continue to the next block
+        continue
 
-      if (stepsSinceWhite>(blocklines.K[line][currentBlock]+2)):
-        # Its too far from known position
-        print 'bountyhunter is lost'
-        break
+      #print possibles
+      #print "hunter range %s" % range(min(possibles),(min(possibles)+blocklines.K[line][blockno]+1))
+      for bountyhunter in range(min(possibles),(min(possibles)+blocklines.K[line][blockno]+1)):
+        if (blockno==0):
+          pass
 
-      if blackConstraints[line][bountyhunter]:
-        # we found a black blob. This must be a part of our block. Try to match it with other blobs
-        # from the block
+        else:
+          if ((max(blocklines.possibleRowPos[line][blockno-1])+blocklines.K[line][blockno-1])>=bountyhunter):
+            # Can't be sure about this position as it overlaps with previous block
+            # Continue to the next blob
+         #   print "overlap. Continue"
+            continue
 
+        #print "No overlap. Check for blacks"
 
-        if (len(blocklines.possibleRowPos[line][currentBlock])==1):
-          # This is already a frozen block. Continue to next block.
-          continue
+        if blackConstraints[line][bountyhunter]:
+          # we found a black blob. This must be a part of our block. Try to match it with other blobs
+          # from the block
+          #print 'black found at %s' % bountyhunter
 
-        #create a new temporary array to list still possible positions
-        stillpossible=array.array('i')
-        for posidx,position in enumerate(blocklines.possibleRowPos[line][currentBlock]):
+          #create a new temporary array to list still possible positions
+          stillpossible=array.array('i')
+          for posidx,position in enumerate(blocklines.possibleRowPos[line][blockno]):
+            #print "testing position %s, hunter %s" % (position,bountyhunter)
+            # if position has common blobs with the found blob
+            # Is so, add it to the new possible position array
+            if np.any(np.logical_and(self.posLenToBinArray(position,blocklines.K[line][blockno]),
+                                     self.posLenToBinArray(bountyhunter,1))):
+              stillpossible.append(position)
 
-          # if position has common blobs with the found blob
-          # Is so, add it to the new possible position array
-          if np.any(np.logical_and(self.posLenToBinArray(position,blocklines.K[line][currentBlock]),
-                                   self.posLenToBinArray(bountyhunter,1))):
-            stillpossible.append(position)
+            blocklines.possibleRowPos[line][blockno]=stillpossible
+            #print bountyhunter,stillpossible
 
-          blocklines.possibleRowPos[line][currentBlock]=stillpossible
-
-        # if we now have got only one possible position left, the block can be frozen!
-        if (len(stillpossible)==1):
-          lastpos=blocklines.possibleRowPos[line][currentBlock]
-          print "Bounty hunter freezing Dir %s line %s, position %s, block %s" % (direction,
-                                                                                  line,bountyhunter,
-                                                                                  currentBlock)
-          self.freezeBlock(direction,line,currentBlock,stillpossible[0])
-
-      if previousBlobIsWhite:
-        stepsSinceWhite=stepsSinceWhite+1
-
-      if (bountyhunter>0):
-        previousBlobIsWhite=whiteConstraints[line][bountyhunter-1]
+          # if we now have got only one possible position left, the block can be frozen!
+          if (len(stillpossible)==1):
+            lastpos=blocklines.possibleRowPos[line][blockno]
+            print "Bounty hunter freezing Dir %s line %s, position %s, block %s" % (direction,
+                                                                                    line,bountyhunter,
+                                                                                    blockno)
+            self.freezeBlock(direction,line,blockno,stillpossible[0])
 
 
 
@@ -418,9 +418,9 @@ class Grid:
             if (reverse>0):
               realStartingPoint=realEndPoint-blocklines.K[line][blocksWithVampire[0]]+1
 
-            print blocksWithVampire
-            print blocklines.possibleRowPos[line][blocksWithVampire[0]]
-            print "Buffy slaying a vampire in dir %s, line %s, block %s, position %s, rev %s" % (direction,line,blocksWithVampire[0],realStartingPoint,reverse)
+            #print blocksWithVampire
+            #print blocklines.possibleRowPos[line][blocksWithVampire[0]]
+            print "Buffy slaying a vampyre in dir %s, line %s, block %s, position %s, rev %s" % (direction,line,blocksWithVampire[0],realStartingPoint,reverse)
             #print blocklines.possibleRowPos[line][blocksWithVampire[0]]
             self.freezeBlock(direction,line,blocksWithVampire[0],realStartingPoint)
 
@@ -490,7 +490,7 @@ class Grid:
             if (len(self.blockcols.possibleRowPos[line][blockno])>1):
               # This is block has not been frozen yet. Freeze now.
               print "Walker freezing COLUMN line %s, block no %s at position %s," % (line,blockno, walker)
-              print "Possible positions: %s" % self.blockcols.possibleRowPos[line][blockno]
+              #print "Possible positions: %s" % self.blockcols.possibleRowPos[line][blockno]
               self.freezeBlock(direction,line,blockno,walker)
             # read constraints again
             whiteConstraints=np.transpose(self.whiteConstraints)
@@ -500,7 +500,7 @@ class Grid:
             if (len(self.blockrows.possibleRowPos[line][blockno])>1):
               # This is block has not been frozen yet. Freeze now.
               print "Walker freezing ROW line %s, block no %s at position %s," % (line,blockno,walker)
-              print "Possible positions: %s" % self.blockrows.possibleRowPos[line][blockno]
+              #print "Possible positions: %s" % self.blockrows.possibleRowPos[line][blockno]
               self.freezeBlock(direction,line,blockno,walker)
             # read constraints again
             whiteConstraints=self.whiteConstraints
